@@ -6,3 +6,4 @@ data/
 .venv/
 venv/
 *.log
+nohup.out
