@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Проекты — SEO Agents{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Заголовок и кнопка создания -->
+    <div class="flex justify-between items-center">
+        <h1 class="text-3xl font-bold text-gray-900">Проекты</h1>
+        <a href="/projects/new"
+           class="inline-flex items-center bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-5 rounded-lg transition shadow-sm">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Новый проект
+        </a>
+    </div>
+
+    <!-- Список проектов -->
+    {% if projects %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for project in projects %}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition flex flex-col">
+            <div class="flex-1">
+                <h2 class="text-lg font-semibold text-gray-900 mb-1">
+                    {{ project.name }}
+                </h2>
+                <p class="text-sm text-gray-500 mb-1 truncate">{{ project.site_url }}</p>
+                <p class="text-sm text-gray-600 mb-4">{{ project.geo }}</p>
+                <p class="text-xs text-gray-400">
+                    Создан: {{ project.created_at.strftime('%d.%m.%Y %H:%M') }}
+                </p>
+            </div>
+            <div class="mt-4 pt-4 border-t border-gray-100">
+                <a href="/projects/{{ project.id }}"
+                   class="inline-flex items-center text-indigo-600 hover:text-indigo-800 font-medium text-sm">
+                    Открыть
+                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-20 bg-white rounded-xl border border-gray-200">
+        <div class="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+            </svg>
+        </div>
+        <p class="text-gray-600 text-lg font-medium">Создайте первый проект</p>
+        <p class="text-gray-400 text-sm mt-1 max-w-sm mx-auto">Добавьте сайт, описание бизнеса и стартовые ключи, чтобы начать расширение семантического ядра.</p>
+        <a href="/projects/new"
+           class="inline-flex items-center mt-5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-5 rounded-lg transition">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Новый проект
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

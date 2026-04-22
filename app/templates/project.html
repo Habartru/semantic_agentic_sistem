@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.name }} — SEO Agents{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Навигация -->
+    <div>
+        <a href="/projects" class="inline-flex items-center text-sm text-gray-500 hover:text-gray-700">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+            Назад к проектам
+        </a>
+    </div>
+
+    <!-- Секция 1: Информация о проекте -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8">
+        <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+            <div class="flex-1">
+                <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ project.name }}</h1>
+                <a href="{{ project.site_url }}" target="_blank" class="text-indigo-600 hover:text-indigo-800 text-sm break-all">{{ project.site_url }}</a>
+
+                <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Описание бизнеса</p>
+                        <p class="text-sm text-gray-700 mt-1">{{ project.business_description }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Гео</p>
+                        <p class="text-sm text-gray-700 mt-1">{{ project.geo }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Стартовые ключи</p>
+                        <div class="text-sm text-gray-700 mt-1">
+                            {% if seed_keywords_list %}
+                                <div class="flex flex-wrap gap-1">
+                                    {% for kw in seed_keywords_list %}
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-50 text-indigo-700">{{ kw }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <span class="text-gray-400">—</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Конкуренты</p>
+                        <div class="text-sm text-gray-700 mt-1">
+                            {% if competitor_urls_list %}
+                                <ul class="space-y-1">
+                                    {% for url in competitor_urls_list %}
+                                    <li><a href="{{ url }}" target="_blank" class="text-indigo-600 hover:text-indigo-800 text-xs break-all">{{ url }}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <span class="text-gray-400">—</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex-shrink-0">
+                <button onclick="startPipeline({{ project.id }})"
+                    class="inline-flex items-center bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-xl transition shadow-sm">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Запустить анализ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Секция 2: Прогресс пайплайна -->
+    <div id="progress-section" class="hidden">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-semibold text-gray-900">Выполнение пайплайна</h2>
+                <span id="pipeline-status" class="text-sm text-indigo-600 font-medium">Ожидание запуска...</span>
+            </div>
+
+            <!-- Шаги пайплайна -->
+            <div id="progress-steps" class="space-y-2">
+                <!-- Заполняется JS -->
+            </div>
+
+            <!-- Ссылка на результаты -->
+            <div id="result-link-wrapper" class="mt-6 hidden">
+                <a id="result-link" href="#"
+                   class="inline-flex items-center bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-5 rounded-lg transition shadow-sm">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    Посмотреть результаты
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Секция 3: История запусков -->
+    <div>
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">История запусков</h2>
+        {% if runs %}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Дата</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Статус</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Прогресс</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Текущий агент</th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for run in runs %}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {{ run.created_at.strftime('%d.%m.%Y %H:%M') }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                    {% if run.status == 'completed' %}bg-green-100 text-green-800
+                                    {% elif run.status == 'running' %}bg-indigo-100 text-indigo-800
+                                    {% elif run.status == 'failed' %}bg-red-100 text-red-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ run.status }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="w-24 bg-gray-200 rounded-full h-2 mr-2">
+                                        <div class="bg-indigo-600 h-2 rounded-full transition-all" style="width: {{ run.progress }}%"></div>
+                                    </div>
+                                    <span class="text-xs text-gray-500">{{ run.progress }}%</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                {{ run.current_agent or '—' }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <a href="/projects/{{ project.id }}/results/{{ run.id }}"
+                                   class="text-indigo-600 hover:text-indigo-900">Результаты</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% else %}
+        <div class="bg-white rounded-xl border border-gray-200 p-8 text-center">
+            <p class="text-gray-500">Запусков пока нет.</p>
+            <p class="text-gray-400 text-sm mt-1">Нажмите «Запустить анализ», чтобы начать первый запуск.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/pipeline.js"></script>
+{% endblock %}

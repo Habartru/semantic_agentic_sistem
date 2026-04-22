@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Новый проект — SEO Agents{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="mb-6">
+        <a href="/projects" class="inline-flex items-center text-sm text-gray-500 hover:text-gray-700">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+            Назад к проектам
+        </a>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+        <h1 class="text-2xl font-bold text-gray-900 mb-6">Новый проект</h1>
+
+        <form id="project-form" action="/projects" method="post" class="space-y-5">
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Название проекта <span class="text-red-500">*</span></label>
+                <input type="text" id="name" name="name" required
+                    class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                    placeholder="Например: Мебельный магазин">
+            </div>
+
+            <div>
+                <label for="site_url" class="block text-sm font-medium text-gray-700 mb-1">URL сайта <span class="text-red-500">*</span></label>
+                <input type="url" id="site_url" name="site_url" required
+                    class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                    placeholder="https://example.ru">
+            </div>
+
+            <div>
+                <label for="business_description" class="block text-sm font-medium text-gray-700 mb-1">Описание бизнеса <span class="text-red-500">*</span></label>
+                <textarea id="business_description" name="business_description" rows="4" required
+                    class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                    placeholder="Интернет-магазин мебели, продаём диваны, кресла, столы..."></textarea>
+            </div>
+
+            <div>
+                <label for="seed_keywords_raw" class="block text-sm font-medium text-gray-700 mb-1">Стартовые ключевые слова</label>
+                <textarea id="seed_keywords_raw" rows="4"
+                    class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                    placeholder="купить диван&#10;угловой диван&#10;диван кровать"></textarea>
+                <p class="text-xs text-gray-400 mt-1">По одному ключевому слову на строку</p>
+                <input type="hidden" name="seed_keywords" id="seed_keywords" value="[]">
+            </div>
+
+            <div>
+                <label for="geo" class="block text-sm font-medium text-gray-700 mb-1">Гео</label>
+                <input type="text" id="geo" name="geo" value="Москва"
+                    class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+            </div>
+
+            <div>
+                <label for="competitor_urls_raw" class="block text-sm font-medium text-gray-700 mb-1">URL конкурентов</label>
+                <textarea id="competitor_urls_raw" rows="3"
+                    class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                    placeholder="https://competitor1.ru&#10;https://competitor2.ru"></textarea>
+                <p class="text-xs text-gray-400 mt-1">По одному URL на строку</p>
+                <input type="hidden" name="competitor_urls" id="competitor_urls" value="[]">
+            </div>
+
+            <input type="hidden" name="language" value="ru">
+
+            <div class="flex items-center justify-end space-x-3 pt-4">
+                <a href="/projects"
+                    class="px-5 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium transition">
+                    Отмена
+                </a>
+                <button type="submit"
+                    class="px-5 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium transition shadow-sm">
+                    Создать проект
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('project-form').addEventListener('submit', function(e) {
+        const seedRaw = document.getElementById('seed_keywords_raw').value;
+        const competitorRaw = document.getElementById('competitor_urls_raw').value;
+
+        const seeds = seedRaw.split('\n').map(s => s.trim()).filter(s => s.length > 0);
+        const competitors = competitorRaw.split('\n').map(s => s.trim()).filter(s => s.length > 0);
+
+        document.getElementById('seed_keywords').value = JSON.stringify(seeds);
+        document.getElementById('competitor_urls').value = JSON.stringify(competitors);
+    });
+</script>
+{% endblock %}
