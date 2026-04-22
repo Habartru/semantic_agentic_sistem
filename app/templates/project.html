@@ -3,58 +3,73 @@
 {% block title %}{{ project.name }} — SEO Agents{% endblock %}
 
 {% block content %}
-<div class="space-y-8">
+<style>
+@keyframes pipeline-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+}
+.pipeline-pulse {
+    animation: pipeline-pulse 1.8s ease-in-out infinite;
+}
+</style>
+
+<div class="space-y-6">
     <!-- Навигация -->
     <div>
-        <a href="/projects" class="inline-flex items-center text-sm text-gray-500 hover:text-gray-700">
-            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        <a href="/projects" class="inline-flex items-center text-sm transition" style="color: var(--fg-3);"
+           onmouseover="this.style.color='var(--fg-1)'" onmouseout="this.style.color='var(--fg-3)'">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"></path>
             </svg>
             Назад к проектам
         </a>
     </div>
 
     <!-- Секция 1: Информация о проекте -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8">
-        <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+    <div class="bg-white" style="border: 1px solid var(--border); border-radius: var(--radius-card); box-shadow: var(--shadow-card); padding: 24px;">
+        <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
             <div class="flex-1">
-                <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ project.name }}</h1>
-                <a href="{{ project.site_url }}" target="_blank" class="text-indigo-600 hover:text-indigo-800 text-sm break-all">{{ project.site_url }}</a>
+                <div class="caption mb-1.5">Проект</div>
+                <h1 class="h1">{{ project.name }}</h1>
+                <a href="{{ project.site_url }}" target="_blank" class="mono text-sm break-all transition"
+                   style="color: var(--primary);"
+                   onmouseover="this.style.color='var(--primary-hover)'" onmouseout="this.style.color='var(--primary)'">{{ project.site_url }}</a>
 
-                <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
                     <div>
-                        <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Описание бизнеса</p>
-                        <p class="text-sm text-gray-700 mt-1">{{ project.business_description }}</p>
+                        <p class="caption mb-1">Описание бизнеса</p>
+                        <p class="body">{{ project.business_description }}</p>
                     </div>
                     <div>
-                        <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Гео</p>
-                        <p class="text-sm text-gray-700 mt-1">{{ project.geo }}</p>
+                        <p class="caption mb-1">Гео</p>
+                        <p class="body">{{ project.geo }}</p>
                     </div>
                     <div>
-                        <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Стартовые ключи</p>
-                        <div class="text-sm text-gray-700 mt-1">
+                        <p class="caption mb-1">Стартовые ключи</p>
+                        <div class="body">
                             {% if seed_keywords_list %}
                                 <div class="flex flex-wrap gap-1">
                                     {% for kw in seed_keywords_list %}
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-50 text-indigo-700">{{ kw }}</span>
+                                    <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium" style="background: var(--indigo-50); color: var(--primary); border-radius: var(--radius-badge);">{{ kw }}</span>
                                     {% endfor %}
                                 </div>
                             {% else %}
-                                <span class="text-gray-400">—</span>
+                                <span style="color: var(--fg-4);">—</span>
                             {% endif %}
                         </div>
                     </div>
                     <div>
-                        <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Конкуренты</p>
-                        <div class="text-sm text-gray-700 mt-1">
+                        <p class="caption mb-1">Конкуренты</p>
+                        <div class="body">
                             {% if competitor_urls_list %}
                                 <ul class="space-y-1">
                                     {% for url in competitor_urls_list %}
-                                    <li><a href="{{ url }}" target="_blank" class="text-indigo-600 hover:text-indigo-800 text-xs break-all">{{ url }}</a></li>
+                                    <li><a href="{{ url }}" target="_blank" class="mono text-xs break-all transition" style="color: var(--primary);"
+                                           onmouseover="this.style.color='var(--primary-hover)'" onmouseout="this.style.color='var(--primary)'">{{ url }}</a></li>
                                     {% endfor %}
                                 </ul>
                             {% else %}
-                                <span class="text-gray-400">—</span>
+                                <span style="color: var(--fg-4);">—</span>
                             {% endif %}
                         </div>
                     </div>
@@ -62,10 +77,12 @@
             </div>
             <div class="flex-shrink-0">
                 <button onclick="startPipeline({{ project.id }})"
-                    class="inline-flex items-center bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-xl transition shadow-sm">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    class="inline-flex items-center gap-2 font-semibold text-white transition"
+                    style="background: var(--success); padding: 12px 24px; border-radius: var(--radius-btn); font-size: 14px;"
+                    onmouseover="this.style.background='var(--green-700)'"
+                    onmouseout="this.style.background='var(--success)'">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"></path>
                     </svg>
                     Запустить анализ
                 </button>
@@ -75,23 +92,55 @@
 
     <!-- Секция 2: Прогресс пайплайна -->
     <div id="progress-section" class="hidden">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-lg font-semibold text-gray-900">Выполнение пайплайна</h2>
-                <span id="pipeline-status" class="text-sm text-indigo-600 font-medium">Ожидание запуска...</span>
+        <div class="bg-white" style="border: 1px solid var(--border); border-radius: var(--radius-card); box-shadow: var(--shadow-card); padding: 28px 24px 24px;">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <div class="card-title">Прогресс анализа</div>
+                    <div class="caption mt-1" id="pipeline-meta">Ожидание запуска</div>
+                </div>
+                <span id="pipeline-status" class="text-sm font-medium" style="color: var(--primary);">Ожидание запуска</span>
             </div>
 
-            <!-- Шаги пайплайна -->
-            <div id="progress-steps" class="space-y-2">
-                <!-- Заполняется JS -->
+            <!-- Pipeline Steps -->
+            <div class="relative" style="margin-bottom: 8px;">
+                <div class="flex items-start justify-between" id="pipeline-container">
+                    {% set steps = [
+                        ('research', 'Исследование'),
+                        ('expansion', 'Расширение'),
+                        ('cleaning', 'Очистка'),
+                        ('intent', 'Интент'),
+                        ('clustering', 'Кластеризация'),
+                        ('mapping', 'Маппинг'),
+                        ('priority', 'Приоритизация'),
+                        ('feedback', 'Обратная связь')
+                    ] %}
+                    {% for key, label in steps %}
+                    <div class="flex flex-col items-center flex-1 min-w-0 relative" id="pipeline-step-{{ loop.index0 }}" data-step-idx="{{ loop.index0 }}">
+                        {% if not loop.last %}
+                        <div class="pipeline-connector absolute" style="top: 20px; left: calc(50% + 20px); right: calc(-50% + 20px); height: 2px; background: var(--border); z-index: 0;"></div>
+                        {% endif %}
+                        <div class="pipeline-circle flex items-center justify-center text-sm font-semibold relative" style="width: 40px; height: 40px; border-radius: 999px; background: var(--gray-100); color: var(--fg-3); border: 1px solid var(--border); z-index: 1; flex-shrink: 0; transition: background 180ms, color 180ms;">
+                            <span class="pipeline-number">{{ loop.index }}</span>
+                            <svg class="pipeline-check w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"></path></svg>
+                            <svg class="pipeline-error w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            <svg class="pipeline-spin w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"></path></svg>
+                        </div>
+                        <div class="text-center mt-2.5 px-1" style="font-size: 12px; font-weight: 500; color: var(--fg-2); line-height: 1.3;">{{ label }}</div>
+                        <div class="pipeline-status-text text-center mt-0.5" style="font-size: 11px; color: var(--fg-4);">Ожидает</div>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
 
             <!-- Ссылка на результаты -->
-            <div id="result-link-wrapper" class="mt-6 hidden">
+            <div id="result-link-wrapper" class="mt-6 hidden flex justify-center">
                 <a id="result-link" href="#"
-                   class="inline-flex items-center bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-5 rounded-lg transition shadow-sm">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                   class="inline-flex items-center gap-2 font-semibold text-white transition"
+                   style="background: var(--success); padding: 12px 32px; border-radius: var(--radius-btn); font-size: 16px;"
+                   onmouseover="this.style.background='var(--green-700)'"
+                   onmouseout="this.style.background='var(--success)'">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path>
                     </svg>
                     Посмотреть результаты
                 </a>
@@ -100,61 +149,67 @@
     </div>
 
     <!-- Секция 3: История запусков -->
-    <div>
-        <h2 class="text-lg font-semibold text-gray-900 mb-4">История запусков</h2>
+    <div class="bg-white" style="border: 1px solid var(--border); border-radius: var(--radius-card); box-shadow: var(--shadow-card); overflow: hidden;">
+        <div style="padding: 18px 24px; border-bottom: 1px solid var(--border);">
+            <div class="card-title">История запусков</div>
+        </div>
         {% if runs %}
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Дата</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Статус</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Прогресс</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Текущий агент</th>
-                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Действия</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        {% for run in runs %}
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ run.created_at.strftime('%d.%m.%Y %H:%M') }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                    {% if run.status == 'completed' %}bg-green-100 text-green-800
-                                    {% elif run.status == 'running' %}bg-indigo-100 text-indigo-800
-                                    {% elif run.status == 'failed' %}bg-red-100 text-red-800
-                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
-                                    {{ run.status }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="w-24 bg-gray-200 rounded-full h-2 mr-2">
-                                        <div class="bg-indigo-600 h-2 rounded-full transition-all" style="width: {{ run.progress }}%"></div>
-                                    </div>
-                                    <span class="text-xs text-gray-500">{{ run.progress }}%</span>
+        <div class="overflow-x-auto">
+            <table class="min-w-full" style="font-size: 13px; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: var(--bg-subtle);">
+                        <th class="text-left px-4 py-2.5" style="font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--fg-3); border-bottom: 1px solid var(--border);">Дата</th>
+                        <th class="text-left px-4 py-2.5" style="font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--fg-3); border-bottom: 1px solid var(--border);">Статус</th>
+                        <th class="text-left px-4 py-2.5" style="font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--fg-3); border-bottom: 1px solid var(--border);">Прогресс</th>
+                        <th class="text-left px-4 py-2.5" style="font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--fg-3); border-bottom: 1px solid var(--border);">Текущий агент</th>
+                        <th class="text-right px-4 py-2.5" style="font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--fg-3); border-bottom: 1px solid var(--border);">Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for run in runs %}
+                    <tr>
+                        <td class="px-4 py-3 whitespace-nowrap" style="color: var(--fg-1); border-bottom: 1px solid var(--border);">
+                            {{ run.created_at.strftime('%d.%m.%Y %H:%M') }}
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap" style="border-bottom: 1px solid var(--border);">
+                            <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium"
+                                style="border-radius: 999px;
+                                    {% if run.status == 'completed' %}background: var(--success-bg); color: var(--success-fg);
+                                    {% elif run.status == 'running' %}background: var(--indigo-50); color: var(--primary-dark);
+                                    {% elif run.status == 'failed' %}background: var(--danger-bg); color: var(--danger-fg);
+                                    {% else %}background: var(--gray-100); color: var(--gray-800);{% endif %}">
+                                {% if run.status == 'completed' %}Завершён
+                                {% elif run.status == 'running' %}В процессе
+                                {% elif run.status == 'failed' %}Ошибка
+                                {% else %}{{ run.status }}{% endif %}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap" style="border-bottom: 1px solid var(--border);">
+                            <div class="flex items-center gap-2.5">
+                                <div style="width: 140px; height: 6px; background: var(--gray-100); border-radius: 999px; overflow: hidden;">
+                                    <div style="width: {{ run.progress }}%; height: 100%; background: {% if run.status == 'failed' %}var(--danger){% else %}var(--success){% endif %}; transition: width 180ms;"></div>
                                 </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                {{ run.current_agent or '—' }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <a href="/projects/{{ project.id }}/results/{{ run.id }}"
-                                   class="text-indigo-600 hover:text-indigo-900">Результаты</a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                                <span class="mono text-xs" style="color: var(--fg-3);">{{ run.progress }}%</span>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap" style="color: var(--fg-2); border-bottom: 1px solid var(--border);">
+                            {{ run.current_agent or '—' }}
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right" style="border-bottom: 1px solid var(--border);">
+                            <a href="/projects/{{ project.id }}/results/{{ run.id }}"
+                               class="font-medium text-sm transition"
+                               style="color: var(--primary);"
+                               onmouseover="this.style.color='var(--primary-hover)'"
+                               onmouseout="this.style.color='var(--primary)'">Результаты</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
         {% else %}
-        <div class="bg-white rounded-xl border border-gray-200 p-8 text-center">
-            <p class="text-gray-500">Запусков пока нет.</p>
-            <p class="text-gray-400 text-sm mt-1">Нажмите «Запустить анализ», чтобы начать первый запуск.</p>
+        <div class="text-center" style="padding: 32px 14px; color: var(--fg-3);">
+            Запусков пока не было. Нажмите «Запустить анализ» выше.
         </div>
         {% endif %}
     </div>

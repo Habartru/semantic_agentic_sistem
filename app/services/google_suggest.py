@@ -6,6 +6,7 @@
 """
 
 import asyncio
+import json
 import logging
 import random
 from typing import Optional
@@ -64,7 +65,11 @@ class GoogleSuggestService:
                 )
                 response.raise_for_status()
 
-                data = response.json()
+                # Google Suggest возвращает ответ в кодировке из Content-Type
+                # (например windows-1251), но response.json() игнорирует charset
+                # и пытается декодировать как utf-8. Используем response.text,
+                # который корректно учитывает encoding из заголовков.
+                data = json.loads(response.text)
                 # Формат ответа: [query, [suggestions...]]
                 if isinstance(data, list) and len(data) >= 2:
                     suggestions = data[1]

@@ -6,16 +6,20 @@
 <div class="space-y-6">
     <!-- Навигация -->
     <div class="flex items-center justify-between">
-        <a href="/projects/{{ project.id }}" class="inline-flex items-center text-sm text-gray-500 hover:text-gray-700">
-            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        <a href="/projects/{{ project.id }}" class="inline-flex items-center text-sm transition" style="color: var(--fg-3);"
+           onmouseover="this.style.color='var(--fg-1)'" onmouseout="this.style.color='var(--fg-3)'">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"></path>
             </svg>
             Назад к проекту
         </a>
         <a href="/api/projects/{{ project.id }}/runs/{{ run.id }}/export/csv"
-           class="inline-flex items-center bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition shadow-sm">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+           class="inline-flex items-center gap-2 font-medium text-white transition"
+           style="background: var(--primary); padding: 8px 16px; border-radius: var(--radius-btn); font-size: 14px;"
+           onmouseover="this.style.background='var(--primary-hover)'"
+           onmouseout="this.style.background='var(--primary)'">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"></path>
             </svg>
             Скачать CSV
         </a>
@@ -23,152 +27,179 @@
 
     <!-- Заголовок -->
     <div>
-        <h1 class="text-2xl font-bold text-gray-900">Результаты анализа — {{ project.name }}</h1>
-        <p class="text-sm text-gray-500 mt-1">Запуск от {{ run.created_at.strftime('%d.%m.%Y %H:%M') }}</p>
+        <h1 class="h1">Результаты — {{ project.name }}</h1>
+        <p class="caption mt-1.5">Запуск от {{ run.created_at.strftime('%d.%m.%Y %H:%M') }}</p>
     </div>
 
     <!-- Статистика -->
     <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
-        <div class="bg-white rounded-xl border border-gray-200 p-4 text-center">
-            <p class="text-2xl font-bold text-gray-900" id="stat-total">{{ results|length }}</p>
-            <p class="text-xs text-gray-500 uppercase tracking-wide mt-1">Всего ключей</p>
+        <div class="bg-white text-center" style="border: 1px solid var(--border); border-radius: var(--radius-card); padding: 16px;">
+            <p class="text-2xl font-bold" style="color: var(--fg-1);" id="stat-total">{{ results|length }}</p>
+            <p class="overline mt-1">Всего ключей</p>
         </div>
-        <div class="bg-white rounded-xl border border-gray-200 p-4 text-center">
-            <p class="text-2xl font-bold text-indigo-600" id="stat-clusters">{{ results|map(attribute='cluster_name')|unique|list|length }}</p>
-            <p class="text-xs text-gray-500 uppercase tracking-wide mt-1">Кластеров</p>
+        <div class="bg-white text-center" style="border: 1px solid var(--border); border-radius: var(--radius-card); padding: 16px;">
+            <p class="text-2xl font-bold" style="color: var(--primary);" id="stat-clusters">{{ results|map(attribute='cluster_name')|unique|list|length }}</p>
+            <p class="overline mt-1">Кластеров</p>
         </div>
-        <div class="bg-white rounded-xl border border-gray-200 p-4 text-center">
-            <p class="text-2xl font-bold text-red-600" id="stat-critical">{{ results|selectattr('priority_level', 'equalto', 'critical')|list|length }}</p>
-            <p class="text-xs text-gray-500 uppercase tracking-wide mt-1">Critical</p>
+        <div class="bg-white text-center" style="border: 1px solid var(--border); border-radius: var(--radius-card); padding: 16px;">
+            <p class="text-2xl font-bold" style="color: var(--danger);" id="stat-critical">{{ results|selectattr('priority_level', 'equalto', 'critical')|list|length }}</p>
+            <p class="overline mt-1">Critical</p>
         </div>
-        <div class="bg-white rounded-xl border border-gray-200 p-4 text-center">
-            <p class="text-2xl font-bold text-green-600" id="stat-high">{{ results|selectattr('priority_level', 'equalto', 'high')|list|length }}</p>
-            <p class="text-xs text-gray-500 uppercase tracking-wide mt-1">High</p>
+        <div class="bg-white text-center" style="border: 1px solid var(--border); border-radius: var(--radius-card); padding: 16px;">
+            <p class="text-2xl font-bold" style="color: var(--success);" id="stat-high">{{ results|selectattr('priority_level', 'equalto', 'high')|list|length }}</p>
+            <p class="overline mt-1">High</p>
         </div>
-        <div class="bg-white rounded-xl border border-gray-200 p-4 text-center">
-            <p class="text-2xl font-bold text-yellow-600" id="stat-medium">{{ results|selectattr('priority_level', 'equalto', 'medium')|list|length }}</p>
-            <p class="text-xs text-gray-500 uppercase tracking-wide mt-1">Medium</p>
+        <div class="bg-white text-center" style="border: 1px solid var(--border); border-radius: var(--radius-card); padding: 16px;">
+            <p class="text-2xl font-bold" style="color: var(--warning);" id="stat-medium">{{ results|selectattr('priority_level', 'equalto', 'medium')|list|length }}</p>
+            <p class="overline mt-1">Medium</p>
         </div>
-        <div class="bg-white rounded-xl border border-gray-200 p-4 text-center">
-            <p class="text-2xl font-bold text-gray-500" id="stat-low">{{ results|selectattr('priority_level', 'equalto', 'low')|list|length }}</p>
-            <p class="text-xs text-gray-500 uppercase tracking-wide mt-1">Low</p>
+        <div class="bg-white text-center" style="border: 1px solid var(--border); border-radius: var(--radius-card); padding: 16px;">
+            <p class="text-2xl font-bold" style="color: var(--fg-3);" id="stat-low">{{ results|selectattr('priority_level', 'equalto', 'low')|list|length }}</p>
+            <p class="overline mt-1">Low</p>
         </div>
     </div>
 
     <!-- Фильтры -->
-    <div class="bg-white rounded-xl border border-gray-200 p-4">
+    <div class="bg-white" style="border: 1px solid var(--border); border-radius: var(--radius-card); padding: 16px;">
         <div class="flex flex-wrap gap-4 items-end">
             <div>
-                <label class="block text-xs font-medium text-gray-700 mb-1">Интент</label>
-                <select id="filter-intent" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <label class="caption block mb-1.5">Интент</label>
+                <select id="filter-intent" class="px-3 py-2 text-sm transition"
+                    style="border: 1px solid var(--border); border-radius: var(--radius-input); background: #fff; color: var(--fg-2); min-width: 160px;"
+                    onfocus="this.style.borderColor='var(--primary)'; this.style.boxShadow='var(--ring-primary)';"
+                    onblur="this.style.borderColor='var(--border)'; this.style.boxShadow='none';">
                     <option value="">Все</option>
-                    <option value="commercial">commercial</option>
-                    <option value="transactional">transactional</option>
-                    <option value="informational">informational</option>
-                    <option value="local">local</option>
-                    <option value="comparison">comparison</option>
-                    <option value="problem_based">problem_based</option>
+                    <option value="commercial">Commercial</option>
+                    <option value="transactional">Transactional</option>
+                    <option value="informational">Informational</option>
+                    <option value="local">Local</option>
+                    <option value="comparison">Comparison</option>
+                    <option value="problem_based">Problem based</option>
                 </select>
             </div>
             <div>
-                <label class="block text-xs font-medium text-gray-700 mb-1">Действие</label>
-                <select id="filter-action" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <label class="caption block mb-1.5">Действие</label>
+                <select id="filter-action" class="px-3 py-2 text-sm transition"
+                    style="border: 1px solid var(--border); border-radius: var(--radius-input); background: #fff; color: var(--fg-2); min-width: 160px;"
+                    onfocus="this.style.borderColor='var(--primary)'; this.style.boxShadow='var(--ring-primary)';"
+                    onblur="this.style.borderColor='var(--border)'; this.style.boxShadow='none';">
                     <option value="">Все</option>
-                    <option value="create">create</option>
-                    <option value="update">update</option>
-                    <option value="merge">merge</option>
-                    <option value="faq">faq</option>
-                    <option value="skip">skip</option>
+                    <option value="create">Create</option>
+                    <option value="update">Update</option>
+                    <option value="merge">Merge</option>
+                    <option value="faq">FAQ</option>
+                    <option value="skip">Skip</option>
                 </select>
             </div>
             <div>
-                <label class="block text-xs font-medium text-gray-700 mb-1">Приоритет</label>
-                <select id="filter-priority" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <label class="caption block mb-1.5">Приоритет</label>
+                <select id="filter-priority" class="px-3 py-2 text-sm transition"
+                    style="border: 1px solid var(--border); border-radius: var(--radius-input); background: #fff; color: var(--fg-2); min-width: 160px;"
+                    onfocus="this.style.borderColor='var(--primary)'; this.style.boxShadow='var(--ring-primary)';"
+                    onblur="this.style.borderColor='var(--border)'; this.style.boxShadow='none';">
                     <option value="">Все</option>
-                    <option value="critical">critical</option>
-                    <option value="high">high</option>
-                    <option value="medium">medium</option>
-                    <option value="low">low</option>
+                    <option value="critical">Critical</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
                 </select>
             </div>
             <div class="flex-1"></div>
-            <div class="text-sm text-gray-500" id="results-count">Показано: {{ results|length }}</div>
+            <div class="text-sm" style="color: var(--fg-3);" id="results-count">Найдено: <b style="color: var(--fg-1);">{{ results|length }}</b></div>
         </div>
     </div>
 
     <!-- Таблица результатов -->
-    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+    <div class="bg-white" style="border: 1px solid var(--border); border-radius: var(--radius-card); box-shadow: var(--shadow-card); overflow: hidden;">
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200" id="results-table">
-                <thead class="bg-gray-50">
+            <table class="min-w-full" style="font-size: 13px; border-collapse: collapse;" id="results-table">
+                <thead style="background: var(--bg-subtle);">
                     <tr>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700 select-none" data-sort="keyword">
+                        <th class="text-left px-4 py-2.5 cursor-pointer select-none transition" data-sort="keyword"
+                            style="font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--fg-3); border-bottom: 1px solid var(--border); white-space: nowrap;"
+                            onmouseover="this.style.color='var(--fg-1)'" onmouseout="this.style.color='var(--fg-3)'">
                             Ключевое слово ↕
                         </th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700 select-none" data-sort="cluster_name">
+                        <th class="text-left px-4 py-2.5 cursor-pointer select-none transition" data-sort="cluster_name"
+                            style="font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--fg-3); border-bottom: 1px solid var(--border); white-space: nowrap;"
+                            onmouseover="this.style.color='var(--fg-1)'" onmouseout="this.style.color='var(--fg-3)'">
                             Кластер ↕
                         </th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700 select-none" data-sort="intent">
+                        <th class="text-left px-4 py-2.5 cursor-pointer select-none transition" data-sort="intent"
+                            style="font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--fg-3); border-bottom: 1px solid var(--border); white-space: nowrap;"
+                            onmouseover="this.style.color='var(--fg-1)'" onmouseout="this.style.color='var(--fg-3)'">
                             Интент ↕
                         </th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700 select-none" data-sort="recommended_page">
+                        <th class="text-left px-4 py-2.5 cursor-pointer select-none transition" data-sort="recommended_page"
+                            style="font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--fg-3); border-bottom: 1px solid var(--border); white-space: nowrap;"
+                            onmouseover="this.style.color='var(--fg-1)'" onmouseout="this.style.color='var(--fg-3)'">
                             Страница ↕
                         </th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700 select-none" data-sort="action">
+                        <th class="text-left px-4 py-2.5 cursor-pointer select-none transition" data-sort="action"
+                            style="font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--fg-3); border-bottom: 1px solid var(--border); white-space: nowrap;"
+                            onmouseover="this.style.color='var(--fg-1)'" onmouseout="this.style.color='var(--fg-3)'">
                             Действие ↕
                         </th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700 select-none" data-sort="priority_score">
+                        <th class="text-left px-4 py-2.5 cursor-pointer select-none transition" data-sort="priority_score"
+                            style="font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--fg-3); border-bottom: 1px solid var(--border); white-space: nowrap;"
+                            onmouseover="this.style.color='var(--fg-1)'" onmouseout="this.style.color='var(--fg-3)'">
                             Приоритет ↕
                         </th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="text-left px-4 py-2.5"
+                            style="font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--fg-3); border-bottom: 1px solid var(--border); white-space: nowrap;">
                             Причина
                         </th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200" id="results-body">
+                <tbody id="results-body">
                     {% for r in results %}
                     <tr class="result-row transition-colors"
                         data-intent="{{ r.intent }}"
                         data-action="{{ r.action }}"
                         data-priority="{{ r.priority_level }}"
                         data-cluster="{{ r.cluster_name }}">
-                        <td class="px-4 py-3 text-sm text-gray-900 font-medium">{{ r.keyword }}</td>
-                        <td class="px-4 py-3 text-sm text-gray-600">{{ r.cluster_name }}</td>
-                        <td class="px-4 py-3 text-sm text-gray-600">
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">{{ r.intent }}</span>
+                        <td class="px-4 py-3" style="font-weight: 500; color: var(--fg-1); border-bottom: 1px solid var(--border);">{{ r.keyword }}</td>
+                        <td class="px-4 py-3" style="color: var(--fg-2); border-bottom: 1px solid var(--border);">{{ r.cluster_name }}</td>
+                        <td class="px-4 py-3" style="border-bottom: 1px solid var(--border);">
+                            <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium"
+                                style="border-radius: var(--radius-badge);
+                                    {% if r.intent == 'commercial' %}background: var(--intent-commercial-bg); color: var(--intent-commercial-fg);
+                                    {% elif r.intent == 'transactional' %}background: var(--intent-transactional-bg); color: var(--intent-transactional-fg);
+                                    {% elif r.intent == 'informational' %}background: var(--intent-informational-bg); color: var(--intent-informational-fg);
+                                    {% elif r.intent == 'local' %}background: var(--intent-local-bg); color: var(--intent-local-fg);
+                                    {% elif r.intent == 'comparison' %}background: var(--intent-comparison-bg); color: var(--intent-comparison-fg);
+                                    {% else %}background: var(--gray-100); color: var(--gray-800);{% endif %}">{{ r.intent }}</span>
                         </td>
-                        <td class="px-4 py-3 text-sm text-gray-600 max-w-xs truncate" title="{{ r.recommended_page }}">{{ r.recommended_page }}</td>
-                        <td class="px-4 py-3 text-sm text-gray-600">
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
-                                {% if r.action == 'create' %}bg-blue-100 text-blue-800
-                                {% elif r.action == 'update' %}bg-purple-100 text-purple-800
-                                {% elif r.action == 'merge' %}bg-orange-100 text-orange-800
-                                {% elif r.action == 'faq' %}bg-teal-100 text-teal-800
-                                {% else %}bg-gray-100 text-gray-800{% endif %}">
-                                {{ r.action }}
-                            </span>
+                        <td class="px-4 py-3 mono max-w-xs truncate" title="{{ r.recommended_page }}" style="font-size: 12px; color: var(--fg-2); border-bottom: 1px solid var(--border);">{{ r.recommended_page }}</td>
+                        <td class="px-4 py-3" style="border-bottom: 1px solid var(--border);">
+                            <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium"
+                                style="border-radius: var(--radius-badge);
+                                    {% if r.action == 'create' %}background: var(--action-create-bg); color: var(--action-create-fg);
+                                    {% elif r.action == 'update' %}background: var(--action-update-bg); color: var(--action-update-fg);
+                                    {% elif r.action == 'merge' %}background: var(--action-merge-bg); color: var(--action-merge-fg);
+                                    {% elif r.action == 'faq' %}background: var(--action-faq-bg); color: var(--action-faq-fg);
+                                    {% else %}background: var(--action-skip-bg); color: var(--action-skip-fg);{% endif %}">{{ r.action }}</span>
                         </td>
-                        <td class="px-4 py-3 text-sm">
-                            <div class="flex items-center space-x-2">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
-                                    {% if r.priority_level == 'critical' %}bg-red-100 text-red-800
-                                    {% elif r.priority_level == 'high' %}bg-green-100 text-green-800
-                                    {% elif r.priority_level == 'medium' %}bg-yellow-100 text-yellow-800
-                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
-                                    {{ r.priority_level }}
-                                </span>
-                                <span class="text-gray-500 text-xs">{{ "%.1f"|format(r.priority_score) }}</span>
+                        <td class="px-4 py-3" style="border-bottom: 1px solid var(--border);">
+                            <div class="flex items-center gap-2">
+                                <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium"
+                                    style="border-radius: var(--radius-badge);
+                                        {% if r.priority_level == 'critical' %}background: var(--danger-bg); color: var(--danger-fg);
+                                        {% elif r.priority_level == 'high' %}background: var(--success-bg); color: var(--success-fg);
+                                        {% elif r.priority_level == 'medium' %}background: var(--warning-bg); color: var(--warning-fg);
+                                        {% else %}background: var(--gray-100); color: var(--gray-800);{% endif %}">{{ r.priority_level }}</span>
+                                <span class="mono text-xs" style="color: var(--fg-3);">{{ "%.2f"|format(r.priority_score) }}</span>
                             </div>
                         </td>
-                        <td class="px-4 py-3 text-sm text-gray-500 max-w-xs truncate" title="{{ r.reason or '' }}">{{ r.reason or '—' }}</td>
+                        <td class="px-4 py-3 text-sm max-w-xs truncate" title="{{ r.reason or '' }}" style="color: var(--fg-3); border-bottom: 1px solid var(--border);">{{ r.reason or '—' }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
         {% if not results %}
-        <div class="text-center py-12">
-            <p class="text-gray-500">Результатов пока нет.</p>
+        <div class="text-center py-12" style="color: var(--fg-3);">
+            Результатов пока нет.
         </div>
         {% endif %}
     </div>
@@ -199,7 +230,7 @@
             row.style.display = match ? '' : 'none';
             if (match) visible++;
         });
-        countLabel.textContent = 'Показано: ' + visible;
+        countLabel.innerHTML = 'Найдено: <b style="color: var(--fg-1);">' + visible + '</b>';
         applyClusterGrouping();
     }
 
@@ -209,9 +240,9 @@
             if (row.style.display === 'none') return;
             const cluster = row.dataset.cluster;
             if (lastCluster && lastCluster !== cluster) {
-                row.classList.add('border-t-2', 'border-gray-300');
+                row.style.borderTop = '2px solid var(--border-strong)';
             } else {
-                row.classList.remove('border-t-2', 'border-gray-300');
+                row.style.borderTop = '';
             }
             lastCluster = cluster;
         });
@@ -221,13 +252,13 @@
         rows.forEach(row => {
             const priority = row.dataset.priority;
             if (priority === 'critical') {
-                row.classList.add('bg-red-50');
+                row.style.background = 'rgba(239, 68, 68, 0.06)';
             } else if (priority === 'high') {
-                row.classList.add('bg-green-50');
+                row.style.background = 'rgba(16, 185, 129, 0.06)';
             } else if (priority === 'medium') {
-                row.classList.add('bg-yellow-50');
+                row.style.background = 'rgba(245, 158, 11, 0.06)';
             } else {
-                row.classList.add('bg-gray-50');
+                row.style.background = 'transparent';
             }
         });
     }

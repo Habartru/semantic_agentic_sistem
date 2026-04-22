@@ -17,78 +17,104 @@ function getStepIndex(agentName) {
     return AGENT_STEPS.findIndex(s => s.agent === agentName || s.key === agentName);
 }
 
-function updateStepUI(stepIndex, status, detail) {
-    const stepEl = document.getElementById(`step-${stepIndex}`);
-    if (!stepEl) return;
-
-    const iconEl = stepEl.querySelector('.step-icon');
-    const labelEl = stepEl.querySelector('.step-label');
-    const detailEl = stepEl.querySelector('.step-detail');
-
-    stepEl.classList.remove('opacity-50', 'bg-white', 'bg-green-50', 'bg-red-50', 'ring-2', 'ring-indigo-500');
-    iconEl.classList.remove('text-gray-400', 'text-indigo-600', 'text-green-600', 'text-red-600', 'animate-pulse');
-
-    if (status === 'waiting') {
-        stepEl.classList.add('opacity-50', 'bg-white');
-        iconEl.classList.add('text-gray-400');
-        iconEl.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/></svg>`;
-    } else if (status === 'running') {
-        stepEl.classList.add('bg-white', 'ring-2', 'ring-indigo-500');
-        iconEl.classList.add('text-indigo-600', 'animate-pulse');
-        iconEl.innerHTML = `<svg class="w-6 h-6 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>`;
-    } else if (status === 'complete') {
-        stepEl.classList.add('bg-green-50');
-        iconEl.classList.add('text-green-600');
-        iconEl.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>`;
-    } else if (status === 'error') {
-        stepEl.classList.add('bg-red-50');
-        iconEl.classList.add('text-red-600');
-        iconEl.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>`;
-    }
-
-    if (detailEl) detailEl.textContent = detail || '';
+function updateConnectorColors() {
+    const steps = document.querySelectorAll('[id^="pipeline-step-"]');
+    steps.forEach((stepEl, idx) => {
+        const connector = stepEl.querySelector('.pipeline-connector');
+        if (!connector) return;
+        const status = stepEl.dataset.status || 'wait';
+        if (status === 'done' || status === 'run') {
+            connector.style.background = 'var(--success)';
+        } else if (status === 'err') {
+            connector.style.background = 'var(--danger)';
+        } else {
+            connector.style.background = 'var(--border)';
+        }
+    });
 }
 
-function initProgressUI(containerId) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-    container.innerHTML = '';
+function updateStepUI(stepIndex, status, detail) {
+    const stepEl = document.getElementById(`pipeline-step-${stepIndex}`);
+    if (!stepEl) return;
 
-    AGENT_STEPS.forEach((step, idx) => {
-        const stepDiv = document.createElement('div');
-        stepDiv.id = `step-${idx}`;
-        stepDiv.className = 'flex items-center space-x-3 p-3 rounded-lg transition opacity-50 bg-white';
-        stepDiv.innerHTML = `
-            <div class="step-icon text-gray-400 flex-shrink-0">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/></svg>
-            </div>
-            <div class="flex-1 min-w-0">
-                <p class="step-label text-sm font-medium text-gray-900">${step.name}</p>
-                <p class="step-detail text-xs text-gray-500 truncate"></p>
-            </div>
-        `;
-        container.appendChild(stepDiv);
-    });
+    stepEl.dataset.status = status;
+    const circle = stepEl.querySelector('.pipeline-circle');
+    const number = stepEl.querySelector('.pipeline-number');
+    const check = stepEl.querySelector('.pipeline-check');
+    const err = stepEl.querySelector('.pipeline-error');
+    const spin = stepEl.querySelector('.pipeline-spin');
+    const statusText = stepEl.querySelector('.pipeline-status-text');
+
+    // Reset
+    circle.classList.remove('pipeline-pulse');
+    circle.style.background = '';
+    circle.style.color = '';
+    circle.style.border = '';
+    number.classList.add('hidden');
+    check.classList.add('hidden');
+    err.classList.add('hidden');
+    spin.classList.add('hidden');
+
+    if (status === 'waiting') {
+        circle.style.background = 'var(--gray-100)';
+        circle.style.color = 'var(--fg-3)';
+        circle.style.border = '1px solid var(--border)';
+        number.classList.remove('hidden');
+        if (statusText) statusText.textContent = 'Ожидает';
+        if (statusText) statusText.style.color = 'var(--fg-4)';
+    } else if (status === 'running') {
+        circle.style.background = 'var(--primary)';
+        circle.style.color = '#fff';
+        circle.style.border = '1px solid var(--primary)';
+        circle.classList.add('pipeline-pulse');
+        spin.classList.remove('hidden');
+        if (statusText) statusText.textContent = 'В процессе';
+        if (statusText) statusText.style.color = 'var(--primary)';
+    } else if (status === 'complete') {
+        circle.style.background = 'var(--success)';
+        circle.style.color = '#fff';
+        circle.style.border = '1px solid var(--success)';
+        check.classList.remove('hidden');
+        if (statusText) statusText.textContent = 'Готово';
+        if (statusText) statusText.style.color = 'var(--success)';
+    } else if (status === 'error') {
+        circle.style.background = 'var(--danger)';
+        circle.style.color = '#fff';
+        circle.style.border = '1px solid var(--danger)';
+        err.classList.remove('hidden');
+        if (statusText) statusText.textContent = 'Ошибка';
+        if (statusText) statusText.style.color = 'var(--danger)';
+    }
+
+    updateConnectorColors();
+}
+
+function initProgressUI() {
+    for (let i = 0; i < AGENT_STEPS.length; i++) {
+        updateStepUI(i, 'waiting');
+    }
+    updateConnectorColors();
 }
 
 async function startPipeline(projectId) {
     const statusEl = document.getElementById('pipeline-status');
     const progressSection = document.getElementById('progress-section');
     const resultLink = document.getElementById('result-link');
+    const pipelineMeta = document.getElementById('pipeline-meta');
 
     if (progressSection) {
         progressSection.classList.remove('hidden');
     }
     if (statusEl) {
-        statusEl.textContent = 'Запуск пайплайна...';
-        statusEl.className = 'text-sm text-indigo-600 font-medium';
+        statusEl.textContent = 'Запуск пайплайна';
+        statusEl.style.color = 'var(--primary)';
     }
     if (resultLink) {
         resultLink.classList.add('hidden');
     }
 
     // Сброс UI
-    initProgressUI('progress-steps');
+    initProgressUI();
 
     let runId;
     try {
@@ -101,13 +127,16 @@ async function startPipeline(projectId) {
     } catch (err) {
         if (statusEl) {
             statusEl.textContent = 'Ошибка запуска: ' + err.message;
-            statusEl.className = 'text-sm text-red-600 font-medium';
+            statusEl.style.color = 'var(--danger)';
         }
         return;
     }
 
     if (statusEl) {
-        statusEl.textContent = 'Пайплайн запущен (run #' + runId + '). Ожидание событий...';
+        statusEl.textContent = 'Пайплайн запущен';
+    }
+    if (pipelineMeta) {
+        pipelineMeta.textContent = 'run #' + runId;
     }
 
     const evtSource = new EventSource(`/api/projects/${projectId}/runs/${runId}/stream`);
@@ -134,6 +163,10 @@ async function startPipeline(projectId) {
             }
             if (statusEl) {
                 statusEl.textContent = `Выполняется: ${data.agent}`;
+                statusEl.style.color = 'var(--primary)';
+            }
+            if (pipelineMeta) {
+                pipelineMeta.textContent = `Шаг ${Math.min(idx + 1, AGENT_STEPS.length)} из ${AGENT_STEPS.length}`;
             }
         } else if (type === 'agent_complete') {
             const idx = getStepIndex(data.agent);
@@ -147,7 +180,7 @@ async function startPipeline(projectId) {
         } else if (type === 'error') {
             if (statusEl) {
                 statusEl.textContent = 'Ошибка: ' + (data.error || 'Неизвестная ошибка');
-                statusEl.className = 'text-sm text-red-600 font-medium';
+                statusEl.style.color = 'var(--danger)';
             }
             const currentIdx = AGENT_STEPS.findIndex(s => s.agent === data.agent);
             if (currentIdx >= 0) {
@@ -159,13 +192,23 @@ async function startPipeline(projectId) {
                 updateStepUI(i, 'complete');
             }
             if (statusEl) {
-                statusEl.textContent = 'Пайплайн завершён!';
-                statusEl.className = 'text-sm text-green-600 font-medium';
+                statusEl.textContent = 'Пайплайн завершён';
+                statusEl.style.color = 'var(--success)';
+            }
+            if (pipelineMeta) {
+                pipelineMeta.textContent = `Все ${AGENT_STEPS.length} шагов выполнены`;
+            }
+            const resultLinkWrapper = document.getElementById('result-link-wrapper');
+            if (resultLinkWrapper) {
+                resultLinkWrapper.classList.remove('hidden');
             }
             if (resultLink) {
                 resultLink.href = `/projects/${projectId}/results/${runId}`;
-                resultLink.classList.remove('hidden');
             }
+            // Авторедирект через 3 секунды
+            setTimeout(() => {
+                window.location.href = `/projects/${projectId}/results/${runId}`;
+            }, 3000);
             evtSource.close();
         }
     };
@@ -174,7 +217,7 @@ async function startPipeline(projectId) {
         console.error('SSE ошибка:', err);
         if (statusEl) {
             statusEl.textContent = 'Ошибка соединения с сервером';
-            statusEl.className = 'text-sm text-red-600 font-medium';
+            statusEl.style.color = 'var(--danger)';
         }
         evtSource.close();
     };

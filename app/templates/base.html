@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}SEO Agents{% endblock %}</title>
-    <!-- Google Fonts: Inter -->
+    <!-- Design Tokens -->
+    <link rel="stylesheet" href="/static/css/design-tokens.css">
+    <!-- JetBrains Mono from Google CDN -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -15,7 +17,8 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        sans: ["'Google Sans Flex'", 'system-ui', 'sans-serif'],
+                        mono: ["'JetBrains Mono'", 'ui-monospace', 'monospace'],
                     },
                 },
             },
@@ -23,37 +26,35 @@
     </script>
     {% block extra_head %}{% endblock %}
 </head>
-<body class="bg-gray-50 text-gray-900 min-h-screen">
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
     <!-- Навигация -->
-    <nav class="bg-white shadow-sm border-b border-gray-200">
+    <nav class="bg-white border-b border-gray-200" style="box-shadow: var(--shadow-nav); height: var(--navbar-h);">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
+            <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
-                    <a href="/projects" class="text-xl font-bold text-indigo-600 hover:text-indigo-800">
-                        SEO Agents
+                    <a href="/projects" class="flex items-center gap-2.5 text-decoration-none">
+                        <img src="/static/assets/logo-mark.png" alt="" width="24" height="24" style="object-fit: contain;">
+                        <span class="text-lg font-bold" style="color: var(--primary); letter-spacing: -0.01em;">SEO Agents</span>
                     </a>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <a href="/projects" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-                        Проекты
-                    </a>
-                    <a href="/settings" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-                        Настройки
-                    </a>
+                <div class="flex items-center space-x-7">
+                    <a href="/" class="text-sm font-medium transition-colors duration-180" style="color: var(--fg-3);" onmouseover="this.style.color='var(--fg-1)'" onmouseout="this.style.color='var(--fg-3)'">Главная</a>
+                    <a href="/projects" class="text-sm font-medium transition-colors duration-180" style="color: var(--fg-3);" onmouseover="this.style.color='var(--fg-1)'" onmouseout="this.style.color='var(--fg-3)'">Проекты</a>
+                    <a href="/settings" class="text-sm font-medium transition-colors duration-180" style="color: var(--fg-3);" onmouseover="this.style.color='var(--fg-1)'" onmouseout="this.style.color='var(--fg-3)'">Настройки</a>
                 </div>
             </div>
         </div>
     </nav>
 
     <!-- Основной контент -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
         {% block content %}{% endblock %}
     </main>
 
     <!-- Футер -->
     <footer class="bg-white border-t border-gray-200 mt-auto">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <p class="text-center text-sm text-gray-500">
+            <p class="text-center text-sm" style="color: var(--fg-3);">
                 SEO Agents — платформа для расширения семантического ядра
             </p>
         </div>

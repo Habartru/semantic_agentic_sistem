@@ -6,11 +6,14 @@
 <div class="space-y-8">
     <!-- Заголовок и кнопка создания -->
     <div class="flex justify-between items-center">
-        <h1 class="text-3xl font-bold text-gray-900">Проекты</h1>
+        <h1 class="h1">Проекты</h1>
         <a href="/projects/new"
-           class="inline-flex items-center bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-5 rounded-lg transition shadow-sm">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+           class="inline-flex items-center gap-2 font-medium text-white transition"
+           style="background: var(--primary); padding: 10px 20px; border-radius: var(--radius-btn); font-size: 14px;"
+           onmouseover="this.style.background='var(--primary-hover)'"
+           onmouseout="this.style.background='var(--primary)'">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"></path>
             </svg>
             Новый проект
         </a>
@@ -20,23 +23,23 @@
     {% if projects %}
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {% for project in projects %}
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition flex flex-col">
+        <div class="bg-white p-5 flex flex-col transition hover:shadow-md"
+             style="border: 1px solid var(--border); border-radius: var(--radius-card); box-shadow: var(--shadow-card);">
             <div class="flex-1">
-                <h2 class="text-lg font-semibold text-gray-900 mb-1">
-                    {{ project.name }}
-                </h2>
-                <p class="text-sm text-gray-500 mb-1 truncate">{{ project.site_url }}</p>
-                <p class="text-sm text-gray-600 mb-4">{{ project.geo }}</p>
-                <p class="text-xs text-gray-400">
-                    Создан: {{ project.created_at.strftime('%d.%m.%Y %H:%M') }}
-                </p>
+                <h2 class="card-title mb-1">{{ project.name }}</h2>
+                <p class="caption truncate">{{ project.site_url }}</p>
+                <p class="body mt-1 mb-3">{{ project.geo }}</p>
+                <p class="caption">Создан: {{ project.created_at.strftime('%d.%m.%Y %H:%M') }}</p>
             </div>
-            <div class="mt-4 pt-4 border-t border-gray-100">
+            <div class="mt-4 pt-4" style="border-top: 1px solid var(--divider);">
                 <a href="/projects/{{ project.id }}"
-                   class="inline-flex items-center text-indigo-600 hover:text-indigo-800 font-medium text-sm">
+                   class="inline-flex items-center font-medium text-sm transition"
+                   style="color: var(--primary);"
+                   onmouseover="this.style.color='var(--primary-hover)'"
+                   onmouseout="this.style.color='var(--primary)'">
                     Открыть
-                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"></path>
                     </svg>
                 </a>
             </div>
@@ -44,20 +47,25 @@
         {% endfor %}
     </div>
     {% else %}
-    <div class="text-center py-20 bg-white rounded-xl border border-gray-200">
-        <div class="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+    <div class="bg-white text-center"
+         style="border: 1px solid var(--border); border-radius: var(--radius-card); box-shadow: var(--shadow-card); padding: 64px 24px;">
+        <div class="mx-auto mb-4 flex items-center justify-center"
+             style="width: 64px; height: 64px; background: var(--indigo-50); border-radius: 16px; color: var(--primary);">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z"></path>
             </svg>
         </div>
-        <p class="text-gray-600 text-lg font-medium">Создайте первый проект</p>
-        <p class="text-gray-400 text-sm mt-1 max-w-sm mx-auto">Добавьте сайт, описание бизнеса и стартовые ключи, чтобы начать расширение семантического ядра.</p>
+        <p class="text-lg font-semibold mb-1" style="color: var(--fg-1);">Пока нет проектов</p>
+        <p class="text-sm mb-5" style="color: var(--fg-3);">Создайте первый проект, чтобы запустить анализ семантического ядра.</p>
         <a href="/projects/new"
-           class="inline-flex items-center mt-5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-5 rounded-lg transition">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+           class="inline-flex items-center gap-2 font-medium text-white transition"
+           style="background: var(--primary); padding: 10px 20px; border-radius: var(--radius-btn); font-size: 14px;"
+           onmouseover="this.style.background='var(--primary-hover)'"
+           onmouseout="this.style.background='var(--primary)'">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"></path>
             </svg>
-            Новый проект
+            Создать первый проект
         </a>
     </div>
     {% endif %}

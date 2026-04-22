@@ -5,72 +5,97 @@
 {% block content %}
 <div class="max-w-2xl mx-auto">
     <div class="mb-6">
-        <a href="/projects" class="inline-flex items-center text-sm text-gray-500 hover:text-gray-700">
-            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        <a href="/projects" class="inline-flex items-center text-sm transition" style="color: var(--fg-3);"
+           onmouseover="this.style.color='var(--fg-1)'" onmouseout="this.style.color='var(--fg-3)'">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"></path>
             </svg>
             Назад к проектам
         </a>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-        <h1 class="text-2xl font-bold text-gray-900 mb-6">Новый проект</h1>
+    <div class="bg-white" style="border: 1px solid var(--border); border-radius: var(--radius-card); box-shadow: var(--shadow-card); padding: 24px;">
+        <h1 class="h1 mb-6">Новый проект</h1>
 
         <form id="project-form" action="/projects" method="post" class="space-y-5">
             <div>
-                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Название проекта <span class="text-red-500">*</span></label>
+                <label for="name" class="caption block mb-1.5">Название проекта <span style="color: var(--danger);">*</span></label>
                 <input type="text" id="name" name="name" required
-                    class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                    class="w-full px-3 py-2.5 transition"
+                    style="border: 1px solid var(--border); border-radius: var(--radius-input); font-size: 14px; color: var(--fg-2); background: #fff;"
+                    onfocus="this.style.borderColor='var(--primary)'; this.style.boxShadow='var(--ring-primary)';"
+                    onblur="this.style.borderColor='var(--border)'; this.style.boxShadow='none';"
                     placeholder="Например: Мебельный магазин">
             </div>
 
             <div>
-                <label for="site_url" class="block text-sm font-medium text-gray-700 mb-1">URL сайта <span class="text-red-500">*</span></label>
+                <label for="site_url" class="caption block mb-1.5">URL сайта <span style="color: var(--danger);">*</span></label>
                 <input type="url" id="site_url" name="site_url" required
-                    class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                    class="w-full px-3 py-2.5 transition"
+                    style="border: 1px solid var(--border); border-radius: var(--radius-input); font-size: 14px; color: var(--fg-2); background: #fff;"
+                    onfocus="this.style.borderColor='var(--primary)'; this.style.boxShadow='var(--ring-primary)';"
+                    onblur="this.style.borderColor='var(--border)'; this.style.boxShadow='none';"
                     placeholder="https://example.ru">
             </div>
 
             <div>
-                <label for="business_description" class="block text-sm font-medium text-gray-700 mb-1">Описание бизнеса <span class="text-red-500">*</span></label>
+                <label for="business_description" class="caption block mb-1.5">Описание бизнеса <span style="color: var(--danger);">*</span></label>
                 <textarea id="business_description" name="business_description" rows="4" required
-                    class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                    class="w-full px-3 py-2.5 transition"
+                    style="border: 1px solid var(--border); border-radius: var(--radius-input); font-size: 14px; color: var(--fg-2); background: #fff;"
+                    onfocus="this.style.borderColor='var(--primary)'; this.style.boxShadow='var(--ring-primary)';"
+                    onblur="this.style.borderColor='var(--border)'; this.style.boxShadow='none';"
                     placeholder="Интернет-магазин мебели, продаём диваны, кресла, столы..."></textarea>
             </div>
 
             <div>
-                <label for="seed_keywords_raw" class="block text-sm font-medium text-gray-700 mb-1">Стартовые ключевые слова</label>
+                <label for="seed_keywords_raw" class="caption block mb-1.5">Стартовые ключевые слова</label>
                 <textarea id="seed_keywords_raw" rows="4"
-                    class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                    class="w-full px-3 py-2.5 transition"
+                    style="border: 1px solid var(--border); border-radius: var(--radius-input); font-size: 14px; color: var(--fg-2); background: #fff;"
+                    onfocus="this.style.borderColor='var(--primary)'; this.style.boxShadow='var(--ring-primary)';"
+                    onblur="this.style.borderColor='var(--border)'; this.style.boxShadow='none';"
                     placeholder="купить диван&#10;угловой диван&#10;диван кровать"></textarea>
-                <p class="text-xs text-gray-400 mt-1">По одному ключевому слову на строку</p>
+                <p class="caption mt-1">По одному ключевому слову на строку</p>
                 <input type="hidden" name="seed_keywords" id="seed_keywords" value="[]">
             </div>
 
             <div>
-                <label for="geo" class="block text-sm font-medium text-gray-700 mb-1">Гео</label>
+                <label for="geo" class="caption block mb-1.5">Гео</label>
                 <input type="text" id="geo" name="geo" value="Москва"
-                    class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                    class="w-full px-3 py-2.5 transition"
+                    style="border: 1px solid var(--border); border-radius: var(--radius-input); font-size: 14px; color: var(--fg-2); background: #fff;"
+                    onfocus="this.style.borderColor='var(--primary)'; this.style.boxShadow='var(--ring-primary)';"
+                    onblur="this.style.borderColor='var(--border)'; this.style.boxShadow='none';">
             </div>
 
             <div>
-                <label for="competitor_urls_raw" class="block text-sm font-medium text-gray-700 mb-1">URL конкурентов</label>
+                <label for="competitor_urls_raw" class="caption block mb-1.5">URL конкурентов</label>
                 <textarea id="competitor_urls_raw" rows="3"
-                    class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                    class="w-full px-3 py-2.5 transition"
+                    style="border: 1px solid var(--border); border-radius: var(--radius-input); font-size: 14px; color: var(--fg-2); background: #fff;"
+                    onfocus="this.style.borderColor='var(--primary)'; this.style.boxShadow='var(--ring-primary)';"
+                    onblur="this.style.borderColor='var(--border)'; this.style.boxShadow='none';"
                     placeholder="https://competitor1.ru&#10;https://competitor2.ru"></textarea>
-                <p class="text-xs text-gray-400 mt-1">По одному URL на строку</p>
+                <p class="caption mt-1">По одному URL на строку</p>
                 <input type="hidden" name="competitor_urls" id="competitor_urls" value="[]">
             </div>
 
             <input type="hidden" name="language" value="ru">
 
-            <div class="flex items-center justify-end space-x-3 pt-4">
+            <div class="flex items-center justify-end gap-3 pt-4" style="border-top: 1px solid var(--divider);">
                 <a href="/projects"
-                    class="px-5 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium transition">
+                    class="inline-flex items-center font-medium transition"
+                    style="padding: 10px 20px; border-radius: var(--radius-btn); font-size: 14px; color: var(--fg-2); background: transparent;"
+                    onmouseover="this.style.background='var(--bg-muted)'"
+                    onmouseout="this.style.background='transparent'">
                     Отмена
                 </a>
                 <button type="submit"
-                    class="px-5 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium transition shadow-sm">
+                    class="inline-flex items-center font-medium text-white transition"
+                    style="padding: 10px 20px; border-radius: var(--radius-btn); font-size: 14px; background: var(--primary);"
+                    onmouseover="this.style.background='var(--primary-hover)'"
+                    onmouseout="this.style.background='var(--primary)'">
                     Создать проект
                 </button>
             </div>

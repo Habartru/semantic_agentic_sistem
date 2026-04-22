@@ -1,0 +1,1573 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SEO Agents — AI-агенты для семантического ядра</title>
+<link rel="stylesheet" href="/static/css/design-tokens.css" />
+<style>
+  /* ========== Tweak variables (persisted) ========== */
+  :root{
+    --accent: #6366F1;          /* indigo-500 */
+    --accent-2: #8B5CF6;         /* purple */
+    --accent-3: #38BDF8;         /* cyan */
+    --dark-bg: #0B0B1E;
+    --dark-bg-2: #15152B;
+    --dark-card: rgba(30,41,59,0.55);
+    --dark-border: rgba(148,163,184,0.16);
+    --dark-fg-1: #F8FAFC;
+    --dark-fg-2: #CBD5E1;
+    --dark-fg-3: #94A3B8;
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#fff;color:var(--fg-1)}
+  body{font-family:var(--font-sans);font-feature-settings:"ss01","cv11"}
+  a{color:inherit;text-decoration:none}
+  img{display:block;max-width:100%}
+  button{font-family:inherit;cursor:pointer;border:none;background:none}
+  .container{max-width:1200px;margin:0 auto;padding:0 32px}
+
+  /* ========== Nav (liquid glass) ========== */
+  .nav{
+    position:sticky;top:14px;z-index:40;
+    margin:14px auto 0;max-width:1240px;
+    backdrop-filter:blur(22px) saturate(1.4);
+    -webkit-backdrop-filter:blur(22px) saturate(1.4);
+    background:linear-gradient(180deg, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0.55) 100%);
+    border:1px solid rgba(255,255,255,0.65);
+    border-radius:18px;
+    height:64px;display:flex;align-items:center;
+    color:#0F172A;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.9) inset,
+      0 -1px 0 rgba(148,163,184,0.08) inset,
+      0 10px 30px -12px rgba(15,23,42,0.18),
+      0 2px 8px -2px rgba(15,23,42,0.08);
+  }
+  .nav .container{display:flex;align-items:center;justify-content:space-between;width:100%;padding:0 20px;max-width:none}
+  .nav-logo{display:flex;align-items:center;gap:10px;font-weight:600;font-size:16px;letter-spacing:-0.01em;color:#0F172A}
+  .nav-logo img{
+    height:30px;width:30px;
+    mix-blend-mode:multiply;
+  }
+  .nav-links{display:flex;gap:28px;font-size:14px;color:#475569}
+  .nav-links a{transition:color 180ms}
+  .nav-links a:hover{color:#0F172A}
+  .nav-cta{display:flex;align-items:center;gap:12px}
+
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:10px 18px;font-size:14px;font-weight:500;border-radius:10px;
+    transition:transform 180ms var(--ease-standard), box-shadow 180ms, background 180ms, color 180ms;
+    white-space:nowrap;
+  }
+  .btn-primary{
+    color:#fff;
+    background:linear-gradient(135deg,var(--accent) 0%, var(--accent-2) 100%);
+    box-shadow:0 4px 14px rgba(99,102,241,0.35), inset 0 1px 0 rgba(255,255,255,0.2);
+  }
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(99,102,241,0.5), inset 0 1px 0 rgba(255,255,255,0.25)}
+  .btn-ghost-dark{
+    color:var(--dark-fg-1);background:rgba(255,255,255,0.04);
+    border:1px solid rgba(148,163,184,0.2);
+  }
+  .btn-ghost-dark:hover{background:rgba(255,255,255,0.08);border-color:rgba(148,163,184,0.35)}
+  .btn-ghost-nav{
+    color:#334155;background:transparent;
+    border:1px solid rgba(15,23,42,0.12);
+  }
+  .btn-ghost-nav:hover{background:rgba(15,23,42,0.04);border-color:rgba(15,23,42,0.22);color:#0F172A}
+  .btn-ghost-light{
+    color:var(--fg-1);background:transparent;border:1px solid var(--border-strong);
+  }
+  .btn-ghost-light:hover{background:var(--gray-50)}
+  .btn-lg{padding:14px 26px;font-size:15px;border-radius:12px}
+  .btn-xl{padding:18px 32px;font-size:16px;border-radius:14px}
+
+  /* ========== Hero ========== */
+  .hero{
+    position:relative;overflow:hidden;
+    background:radial-gradient(ellipse 80% 60% at 50% 0%, #1a1440 0%, var(--dark-bg) 45%, var(--dark-bg) 100%);
+    color:var(--dark-fg-1);
+    padding:120px 0 120px;
+    margin-top:-78px; /* let the floating nav overlay the hero top */
+  }
+  .hero-grid-bg{
+    position:absolute;inset:0;opacity:0.5;
+    background-image:
+      linear-gradient(rgba(99,102,241,0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(99,102,241,0.08) 1px, transparent 1px);
+    background-size:64px 64px;
+    mask-image:radial-gradient(ellipse 70% 60% at 50% 40%, black 0%, transparent 70%);
+  }
+  .hero-glow-1,.hero-glow-2{
+    position:absolute;border-radius:50%;filter:blur(100px);pointer-events:none;
+  }
+  .hero-glow-1{width:600px;height:600px;background:rgba(99,102,241,0.35);top:-200px;left:-150px}
+  .hero-glow-2{width:500px;height:500px;background:rgba(139,92,246,0.28);bottom:-200px;right:-150px}
+
+  .hero .container{position:relative;z-index:1}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:10px;
+    padding:6px 14px 6px 6px;border-radius:999px;
+    background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.25);
+    font-size:13px;color:#C7D2FE;
+    margin-bottom:28px;
+  }
+  .eyebrow .dot{
+    width:22px;height:22px;border-radius:999px;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;
+  }
+  .hero h1{
+    font-size:clamp(40px,5.2vw,72px);font-weight:700;line-height:1.05;letter-spacing:-0.03em;
+    color:#fff;margin:0 0 24px;max-width:18ch;
+  }
+  .hero h1 .grad{
+    background:linear-gradient(135deg,#A5B4FC 0%, #C4B5FD 40%, #7DD3FC 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .hero p.lead{
+    font-size:18px;line-height:1.55;color:var(--dark-fg-2);max-width:56ch;margin:0 0 36px;
+  }
+  .hero-actions{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:56px}
+  .trust-row{display:flex;align-items:center;gap:28px;flex-wrap:wrap;color:var(--dark-fg-3);font-size:13px}
+  .trust-row .metric{display:flex;align-items:baseline;gap:8px;color:var(--dark-fg-2)}
+  .trust-row .metric b{color:#fff;font-size:18px;font-weight:600;letter-spacing:-0.01em}
+  .trust-sep{width:1px;height:16px;background:rgba(148,163,184,0.2)}
+
+  /* ========== Hero visual — canvas pipeline ========== */
+  .hero-visual{
+    position:relative;margin-top:72px;
+    border:1px solid var(--dark-border);border-radius:20px;
+    background:linear-gradient(180deg, rgba(30,41,59,0.4) 0%, rgba(15,23,42,0.2) 100%);
+    padding:28px 28px 20px;
+    backdrop-filter:blur(8px);
+    box-shadow:0 30px 80px -20px rgba(0,0,0,0.5);
+  }
+  .hero-visual-header{
+    display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;
+    padding-bottom:16px;border-bottom:1px solid var(--dark-border);
+  }
+  .hero-visual-header .title{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--dark-fg-2);font-weight:500}
+  .hero-visual-header .title .live{
+    width:8px;height:8px;border-radius:50%;background:#34D399;box-shadow:0 0 0 4px rgba(52,211,153,0.2);
+    animation:livepulse 1.6s ease-in-out infinite;
+  }
+  @keyframes livepulse{0%,100%{box-shadow:0 0 0 0 rgba(52,211,153,0.4)}50%{box-shadow:0 0 0 6px rgba(52,211,153,0)}}
+  .hero-visual-header .crumbs{display:flex;gap:8px;font-size:11px;color:var(--dark-fg-3);font-family:var(--font-mono)}
+  .hero-visual-header .crumbs span{padding:3px 8px;border-radius:6px;background:rgba(148,163,184,0.08)}
+  #pipelineCanvas{display:block;width:100%;height:380px}
+
+  /* ========== Generic section ========== */
+  section{position:relative}
+  .section{padding:120px 0}
+  .section-head{text-align:center;margin-bottom:64px}
+  .section-eyebrow{
+    display:inline-block;font-size:12px;font-weight:600;letter-spacing:0.08em;
+    text-transform:uppercase;color:var(--accent);margin-bottom:16px;
+  }
+  .section h2{
+    font-size:clamp(32px,3.6vw,48px);font-weight:700;letter-spacing:-0.025em;line-height:1.1;
+    margin:0 0 16px;color:var(--fg-1);
+  }
+  .section-head p{
+    font-size:18px;line-height:1.5;color:var(--fg-3);max-width:60ch;margin:0 auto;
+  }
+
+  /* ========== Problem / Solution ========== */
+  .ps-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  .ps-col{
+    border-radius:20px;padding:36px;
+    border:1px solid var(--border);background:#fff;
+    position:relative;overflow:hidden;
+  }
+  .ps-col.bad{background:linear-gradient(180deg,#FAFAFC 0%, #F4F4F7 100%)}
+  .ps-col.good{
+    background:linear-gradient(180deg,#F5F3FF 0%, #EEF2FF 100%);
+    border-color:rgba(99,102,241,0.25);
+  }
+  .ps-col h3{
+    font-size:18px;font-weight:600;margin:0 0 6px;display:flex;align-items:center;gap:10px;letter-spacing:-0.01em;
+  }
+  .ps-col .ps-label{font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--fg-3);margin-bottom:20px}
+  .ps-col.good .ps-label{color:var(--accent)}
+  .ps-list{margin:24px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:14px}
+  .ps-list li{
+    display:flex;gap:12px;padding:14px 16px;border-radius:12px;font-size:15px;line-height:1.45;
+    background:rgba(255,255,255,0.6);border:1px solid rgba(0,0,0,0.04);
+  }
+  .ps-col.bad .ps-list li{color:#64748B}
+  .ps-col.good .ps-list li{color:var(--fg-2);background:#fff;border-color:rgba(99,102,241,0.1)}
+  .ps-icon{flex-shrink:0;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+  .ps-col.bad .ps-icon{background:#E5E7EB;color:#9CA3AF}
+  .ps-col.good .ps-icon{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff}
+  .ps-outcome{
+    margin-top:24px;padding:18px 20px;border-radius:12px;font-size:14px;font-weight:500;
+  }
+  .ps-col.bad .ps-outcome{background:#F3F4F6;color:#6B7280}
+  .ps-col.good .ps-outcome{background:#fff;color:var(--accent);border:1px solid rgba(99,102,241,0.2)}
+
+  /* ========== Pipeline section ========== */
+  .pipeline-wrap{
+    background:#0F0F23;color:var(--dark-fg-1);
+    border-radius:24px;padding:56px 40px 48px;
+    position:relative;overflow:hidden;
+    border:1px solid var(--dark-border);
+  }
+  .pipeline-wrap::before{
+    content:"";position:absolute;inset:0;
+    background:
+      radial-gradient(ellipse 60% 40% at 20% 0%, rgba(99,102,241,0.25), transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 100%, rgba(139,92,246,0.2), transparent 60%);
+    pointer-events:none;
+  }
+  .pipeline-wrap > *{position:relative}
+  .pipeline-wrap .section-head h2{color:#fff}
+  .pipeline-wrap .section-head p{color:var(--dark-fg-3)}
+  .pipeline-grid{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:48px;
+  }
+  .agent-card{
+    position:relative;
+    border:1px solid var(--dark-border);
+    background:linear-gradient(180deg, rgba(30,41,59,0.4), rgba(15,23,42,0.2));
+    border-radius:16px;padding:24px 20px 22px;
+    transition:transform 240ms var(--ease-standard), border-color 240ms, background 240ms;
+    overflow:hidden;
+  }
+  .agent-card::before{
+    content:"";position:absolute;inset:-1px;border-radius:16px;padding:1px;
+    background:linear-gradient(135deg, rgba(99,102,241,0), rgba(139,92,246,0));
+    -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;
+    transition:opacity 240ms;opacity:0;pointer-events:none;
+  }
+  .agent-card:hover{
+    transform:translateY(-3px);
+    border-color:rgba(99,102,241,0.4);
+    background:linear-gradient(180deg, rgba(49,46,129,0.3), rgba(30,41,59,0.2));
+  }
+  .agent-num{
+    font-family:var(--font-mono);font-size:11px;color:var(--dark-fg-3);
+    letter-spacing:0.1em;margin-bottom:14px;display:flex;align-items:center;gap:10px;
+  }
+  .agent-num .chip{
+    width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,rgba(99,102,241,0.25),rgba(139,92,246,0.18));
+    border:1px solid rgba(99,102,241,0.35);color:#C7D2FE;font-weight:600;font-size:13px;
+  }
+  .agent-card svg.icon{width:28px;height:28px;color:#A5B4FC;margin-bottom:14px;stroke-width:1.5}
+  .agent-name{font-size:16px;font-weight:600;color:#fff;margin-bottom:8px;letter-spacing:-0.01em}
+  .agent-tech{font-family:var(--font-mono);font-size:11px;color:var(--accent-3);margin-bottom:12px}
+  .agent-desc{font-size:13px;line-height:1.5;color:var(--dark-fg-2)}
+  .agent-card .flow-tag{
+    position:absolute;top:20px;right:16px;font-family:var(--font-mono);font-size:10px;
+    color:var(--dark-fg-3);letter-spacing:0.05em;
+  }
+
+  /* ========== Results ========== */
+  .results-grid{display:grid;grid-template-columns:1.6fr 1fr;gap:24px;align-items:start}
+  .browser{
+    border:1px solid var(--border);border-radius:16px;overflow:hidden;
+    background:#fff;box-shadow:0 30px 60px -20px rgba(15,23,42,0.15);
+  }
+  .browser-bar{
+    display:flex;align-items:center;gap:12px;padding:12px 16px;
+    background:#F9FAFB;border-bottom:1px solid var(--border);
+  }
+  .dots{display:flex;gap:6px}
+  .dots span{width:11px;height:11px;border-radius:50%}
+  .dots span:nth-child(1){background:#FF5F57}.dots span:nth-child(2){background:#FEBC2E}.dots span:nth-child(3){background:#28C840}
+  .url-pill{
+    flex:1;display:flex;align-items:center;gap:8px;padding:5px 12px;
+    background:#fff;border:1px solid var(--border);border-radius:8px;
+    font-family:var(--font-mono);font-size:12px;color:var(--fg-3);
+  }
+  .browser-body{padding:24px}
+  .browser-toolbar{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+  .chip{
+    display:inline-flex;align-items:center;gap:6px;padding:6px 12px;
+    border-radius:999px;font-size:12px;font-weight:500;
+    border:1px solid var(--border);background:#fff;color:var(--fg-2);
+  }
+  .chip.active{background:var(--indigo-50);border-color:rgba(99,102,241,0.3);color:var(--primary-hover)}
+
+  table.results{width:100%;border-collapse:collapse;font-size:13px}
+  table.results th{
+    text-align:left;padding:10px 12px;font-weight:600;font-size:11px;
+    color:var(--fg-3);letter-spacing:0.06em;text-transform:uppercase;
+    border-bottom:1px solid var(--border);background:#FAFAFB;
+  }
+  table.results td{padding:14px 12px;border-bottom:1px solid var(--divider);vertical-align:middle}
+  table.results tr:last-child td{border-bottom:none}
+  table.results tr:hover td{background:#FAFAFB}
+  .kw{font-weight:500;color:var(--fg-1)}
+  .kw-sub{font-size:11px;color:var(--fg-3);margin-top:2px;font-family:var(--font-mono)}
+  .badge{
+    display:inline-flex;align-items:center;gap:4px;padding:3px 9px;
+    border-radius:4px;font-size:11px;font-weight:500;
+  }
+  .badge.commercial{background:var(--intent-commercial-bg);color:var(--intent-commercial-fg)}
+  .badge.informational{background:var(--intent-informational-bg);color:var(--intent-informational-fg)}
+  .badge.create{background:var(--action-create-bg);color:var(--action-create-fg)}
+  .badge.update{background:var(--action-update-bg);color:var(--action-update-fg)}
+  .prio{display:flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:13px}
+  .prio-bar{flex:1;height:6px;background:#F3F4F6;border-radius:999px;overflow:hidden;max-width:80px}
+  .prio-fill{height:100%;border-radius:999px}
+  .prio.critical .prio-fill{background:#DC2626}
+  .prio.high .prio-fill{background:#059669}
+  .prio.medium .prio-fill{background:#D97706}
+  .prio-label{font-size:10px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--fg-3);font-family:var(--font-sans);margin-left:4px}
+
+  /* stats column */
+  .stats-col{display:flex;flex-direction:column;gap:16px}
+  .stat-card{
+    border:1px solid var(--border);border-radius:14px;padding:22px;background:#fff;
+    position:relative;overflow:hidden;
+  }
+  .stat-overline{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--fg-3);margin-bottom:12px}
+  .stat-value{font-size:38px;font-weight:700;color:var(--fg-1);letter-spacing:-0.02em;line-height:1;font-family:var(--font-sans);margin-bottom:6px}
+  .stat-value.accent{color:var(--accent)}
+  .stat-delta{font-size:13px;color:var(--success);font-weight:500;display:flex;align-items:center;gap:4px}
+  .stat-spark{margin-top:16px;height:44px}
+  .pull-quote{
+    border:1px solid rgba(99,102,241,0.2);border-radius:16px;padding:28px;
+    background:linear-gradient(135deg, rgba(99,102,241,0.06), rgba(139,92,246,0.04));
+    margin-top:40px;
+  }
+  .pull-quote p{font-size:20px;line-height:1.45;color:var(--fg-1);margin:0;font-weight:500;letter-spacing:-0.01em}
+  .pull-quote .mark{font-size:40px;color:var(--accent);line-height:0.5;vertical-align:-10px;margin-right:6px;font-family:Georgia,serif}
+
+  /* ========== Benefits grid ========== */
+  .benefits{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .benefit{
+    border:1px solid var(--border);border-radius:16px;padding:28px 26px;background:#fff;
+    transition:border-color 240ms, transform 240ms var(--ease-standard), box-shadow 240ms;
+  }
+  .benefit:hover{border-color:rgba(99,102,241,0.4);transform:translateY(-3px);box-shadow:0 12px 32px -8px rgba(99,102,241,0.15)}
+  .benefit-icon{
+    width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg, var(--indigo-50), #F3F0FF);border:1px solid var(--indigo-100);
+    color:var(--primary);margin-bottom:20px;
+  }
+  .benefit-icon svg{width:22px;height:22px;stroke-width:1.5}
+  .benefit h4{font-size:17px;font-weight:600;color:var(--fg-1);margin:0 0 10px;letter-spacing:-0.01em}
+  .benefit p{font-size:14px;line-height:1.55;color:var(--fg-3);margin:0}
+
+  /* ========== Для кого ========== */
+  .audience{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .aud-card{
+    padding:32px 28px;border-radius:16px;
+    background:#F9FAFB;border:1px solid var(--border);
+    position:relative;overflow:hidden;
+  }
+  .aud-card:nth-child(1){background:linear-gradient(180deg,#EEF2FF,#F5F3FF)}
+  .aud-card:nth-child(2){background:linear-gradient(180deg,#ECFDF5,#F0FDFA)}
+  .aud-card:nth-child(3){background:linear-gradient(180deg,#FFF7ED,#FEF3C7)}
+  .aud-card h4{font-size:18px;font-weight:600;margin:0 0 12px;color:var(--fg-1);letter-spacing:-0.01em}
+  .aud-card p{font-size:14px;line-height:1.55;color:var(--fg-2);margin:0}
+  .aud-tag{
+    display:inline-block;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;
+    color:var(--fg-3);margin-bottom:16px;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,0.7);
+  }
+
+  /* ========== Tech ========== */
+  .tech-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+  .tech-card{
+    padding:28px 20px;border:1px solid var(--border);border-radius:14px;
+    background:#fff;display:flex;flex-direction:column;align-items:center;text-align:center;
+  }
+  .tech-card .logo{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;font-weight:700;font-size:18px;color:#fff}
+  .tech-card h5{margin:0 0 4px;font-size:14px;font-weight:600;color:var(--fg-1)}
+  .tech-card span{font-size:12px;color:var(--fg-3)}
+  .tech-note{
+    padding:24px 28px;border-radius:14px;background:#F9FAFB;border:1px solid var(--border);
+    font-size:15px;line-height:1.55;color:var(--fg-2);text-align:center;
+  }
+
+  /* ========== FAQ ========== */
+  .faq{max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+  .faq-item{
+    border:1px solid var(--border);border-radius:14px;background:#fff;
+    transition:border-color 180ms;
+  }
+  .faq-item[open]{border-color:rgba(99,102,241,0.35)}
+  .faq-item summary{
+    list-style:none;cursor:pointer;padding:20px 24px;
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+    font-size:16px;font-weight:500;color:var(--fg-1);
+  }
+  .faq-item summary::-webkit-details-marker{display:none}
+  .faq-item summary .plus{
+    flex-shrink:0;width:28px;height:28px;border-radius:8px;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--gray-100);color:var(--fg-2);transition:transform 200ms, background 200ms;
+  }
+  .faq-item[open] summary .plus{transform:rotate(45deg);background:var(--indigo-50);color:var(--primary)}
+  .faq-item .faq-body{padding:0 24px 20px;font-size:14px;line-height:1.6;color:var(--fg-3)}
+
+  /* ========== Final CTA ========== */
+  .final-cta{
+    position:relative;overflow:hidden;border-radius:28px;padding:72px 48px;
+    background:radial-gradient(ellipse 60% 80% at 50% 100%, #2E1065 0%, #15152B 50%, #0B0B1E 100%);
+    color:#fff;text-align:center;border:1px solid var(--dark-border);
+  }
+  .final-cta::before{
+    content:"";position:absolute;inset:0;
+    background-image:
+      linear-gradient(rgba(99,102,241,0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(99,102,241,0.08) 1px, transparent 1px);
+    background-size:48px 48px;
+    mask-image:radial-gradient(ellipse 60% 80% at 50% 0%, black, transparent 70%);
+    pointer-events:none;
+  }
+  .final-cta .glow{position:absolute;width:600px;height:400px;border-radius:50%;filter:blur(120px);background:rgba(139,92,246,0.45);top:30%;left:50%;transform:translateX(-50%);pointer-events:none}
+  .final-cta > *{position:relative}
+  .final-cta h2{font-size:clamp(32px,3.6vw,48px);font-weight:700;letter-spacing:-0.025em;color:#fff;margin:0 0 16px;line-height:1.1}
+  .final-cta p{font-size:18px;color:var(--dark-fg-2);margin:0 0 36px;max-width:56ch;margin-left:auto;margin-right:auto}
+
+  /* ========== Footer ========== */
+  footer{
+    background:#0B0B1E;color:var(--dark-fg-3);padding:56px 0 40px;
+    border-top:1px solid var(--dark-border);
+  }
+  footer .container{display:flex;justify-content:space-between;align-items:flex-start;gap:32px;flex-wrap:wrap}
+  footer .foot-brand{display:flex;flex-direction:column;gap:12px;max-width:320px}
+  footer .foot-brand .logo-row{display:flex;align-items:center;gap:12px;color:#fff;font-weight:600}
+  footer .foot-brand .logo-row img{
+    height:32px;width:32px;
+    padding:3px;background:#fff;border-radius:8px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.25);
+  }
+  footer .foot-brand p{font-size:13px;line-height:1.5;margin:0;color:var(--dark-fg-3)}
+  footer .foot-cols{display:flex;gap:56px;flex-wrap:wrap}
+  footer .foot-col h6{margin:0 0 14px;font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--dark-fg-2)}
+  footer .foot-col a{display:block;font-size:14px;color:var(--dark-fg-3);padding:4px 0;transition:color 180ms}
+  footer .foot-col a:hover{color:#fff}
+  footer .foot-bottom{
+    max-width:1200px;margin:40px auto 0;padding:24px 32px 0;
+    border-top:1px solid var(--dark-border);
+    display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--dark-fg-3);
+  }
+
+  /* ========== Tweaks Panel ========== */
+  #tweaksPanel{
+    position:fixed;right:24px;bottom:24px;z-index:100;
+    width:320px;background:#fff;border:1px solid var(--border);
+    border-radius:16px;box-shadow:0 20px 40px rgba(15,23,42,0.18);
+    padding:20px;display:none;font-family:var(--font-sans);
+  }
+  #tweaksPanel.open{display:block}
+  #tweaksPanel h6{margin:0 0 4px;font-size:14px;font-weight:600;color:var(--fg-1)}
+  #tweaksPanel .tw-sub{font-size:12px;color:var(--fg-3);margin-bottom:16px}
+  #tweaksPanel .tw-group{margin-bottom:16px}
+  #tweaksPanel label{display:block;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--fg-3);margin-bottom:8px}
+  #tweaksPanel .tw-opts{display:flex;gap:6px;flex-wrap:wrap}
+  #tweaksPanel button.tw-opt{
+    flex:1;min-width:60px;padding:8px 10px;border-radius:8px;
+    border:1px solid var(--border);background:#fff;font-size:12px;color:var(--fg-2);
+    transition:all 180ms;
+  }
+  #tweaksPanel button.tw-opt.active{background:var(--indigo-50);border-color:var(--primary);color:var(--primary-hover);font-weight:500}
+  #tweaksPanel .tw-swatches{display:flex;gap:8px}
+  #tweaksPanel .tw-swatch{
+    width:32px;height:32px;border-radius:8px;border:2px solid transparent;cursor:pointer;
+    transition:transform 180ms, border-color 180ms;
+  }
+  #tweaksPanel .tw-swatch.active{border-color:var(--fg-1);transform:scale(1.1)}
+
+  /* theme: dark */
+  body.theme-dark{background:var(--dark-bg);color:var(--dark-fg-1)}
+  body.theme-dark .section{background:transparent}
+  body.theme-dark .ps-col{background:linear-gradient(180deg, rgba(30,41,59,0.4), rgba(15,23,42,0.2));border-color:var(--dark-border);color:var(--dark-fg-2)}
+  body.theme-dark .ps-col.good{background:linear-gradient(180deg, rgba(49,46,129,0.3), rgba(30,27,75,0.2));border-color:rgba(99,102,241,0.3)}
+  body.theme-dark .ps-list li{background:rgba(15,23,42,0.4);border-color:var(--dark-border);color:var(--dark-fg-2)}
+  body.theme-dark .ps-col.good .ps-list li{background:rgba(30,27,75,0.3)}
+  body.theme-dark .ps-outcome{background:rgba(15,23,42,0.6);color:var(--dark-fg-1)}
+  body.theme-dark .ps-col.good .ps-outcome{background:rgba(99,102,241,0.15);color:#C7D2FE;border-color:rgba(99,102,241,0.3)}
+  body.theme-dark .section h2{color:#fff}
+  body.theme-dark .section-head p{color:var(--dark-fg-3)}
+  body.theme-dark .benefit,body.theme-dark .faq-item,body.theme-dark .stat-card,body.theme-dark .tech-card,body.theme-dark .tech-note{background:linear-gradient(180deg, rgba(30,41,59,0.4), rgba(15,23,42,0.2));border-color:var(--dark-border);color:var(--dark-fg-2)}
+  body.theme-dark .benefit h4,body.theme-dark .stat-value,body.theme-dark .tech-card h5,body.theme-dark .faq-item summary{color:#fff}
+  body.theme-dark .benefit p,body.theme-dark .tech-note,body.theme-dark .faq-item .faq-body,body.theme-dark .tech-card span{color:var(--dark-fg-3)}
+  body.theme-dark .benefit-icon{background:rgba(99,102,241,0.12);border-color:rgba(99,102,241,0.3)}
+  body.theme-dark .aud-card{background:linear-gradient(180deg, rgba(30,41,59,0.4), rgba(15,23,42,0.2));border-color:var(--dark-border)}
+  body.theme-dark .aud-card h4{color:#fff}
+  body.theme-dark .aud-card p{color:var(--dark-fg-2)}
+  body.theme-dark .aud-tag{background:rgba(148,163,184,0.1);color:var(--dark-fg-3)}
+  body.theme-dark .browser{background:#15152B;border-color:var(--dark-border)}
+  body.theme-dark .browser-bar{background:#0B0B1E;border-color:var(--dark-border)}
+  body.theme-dark .url-pill{background:#15152B;border-color:var(--dark-border);color:var(--dark-fg-3)}
+  body.theme-dark table.results th{background:#0B0B1E;color:var(--dark-fg-3);border-color:var(--dark-border)}
+  body.theme-dark table.results td{border-color:var(--dark-border)}
+  body.theme-dark table.results tr:hover td{background:rgba(99,102,241,0.05)}
+  body.theme-dark .kw{color:#fff}
+  body.theme-dark .chip{background:rgba(148,163,184,0.08);border-color:var(--dark-border);color:var(--dark-fg-2)}
+  body.theme-dark .chip.active{background:rgba(99,102,241,0.2);border-color:rgba(99,102,241,0.4);color:#C7D2FE}
+  body.theme-dark .pull-quote{background:linear-gradient(135deg,rgba(99,102,241,0.1),rgba(139,92,246,0.05));border-color:rgba(99,102,241,0.25)}
+  body.theme-dark .pull-quote p{color:#fff}
+  body.theme-dark #tweaksPanel{background:#15152B;border-color:var(--dark-border);color:var(--dark-fg-2)}
+  body.theme-dark #tweaksPanel h6{color:#fff}
+  body.theme-dark #tweaksPanel button.tw-opt{background:transparent;border-color:var(--dark-border);color:var(--dark-fg-2)}
+  body.theme-dark #tweaksPanel button.tw-opt.active{background:rgba(99,102,241,0.2);border-color:var(--accent);color:#C7D2FE}
+  body.theme-dark .prio-bar{background:rgba(148,163,184,0.12)}
+
+  /* theme: light (all sections become white, no dark hero bg) */
+  body.theme-light .hero,body.theme-light .pipeline-wrap,body.theme-light .final-cta,body.theme-light footer,body.theme-light .nav{
+    background:#fff;color:var(--fg-1);border-color:var(--border);
+  }
+  body.theme-light .nav{background:rgba(255,255,255,0.85);border-bottom:1px solid var(--border)}
+  body.theme-light .nav-logo,body.theme-light .nav-links a{color:var(--fg-2)}
+  body.theme-light .nav-links a:hover{color:var(--fg-1)}
+  body.theme-light .hero{background:radial-gradient(ellipse 80% 60% at 50% 0%, #F5F3FF 0%, #F9FAFB 60%, #fff 100%)}
+  body.theme-light .hero h1{color:var(--fg-1)}
+  body.theme-light .hero p.lead{color:var(--fg-3)}
+  body.theme-light .hero-glow-1{background:rgba(99,102,241,0.15);opacity:0.6}
+  body.theme-light .hero-glow-2{background:rgba(139,92,246,0.12);opacity:0.6}
+  body.theme-light .hero-grid-bg{opacity:0.3}
+  body.theme-light .eyebrow{background:var(--indigo-50);border-color:var(--indigo-100);color:var(--primary-hover)}
+  body.theme-light .hero-visual{background:#fff;border-color:var(--border);box-shadow:0 30px 60px -20px rgba(15,23,42,0.12)}
+  body.theme-light .hero-visual-header{border-color:var(--border)}
+  body.theme-light .hero-visual-header .title{color:var(--fg-2)}
+  body.theme-light .hero-visual-header .crumbs span{background:var(--gray-100);color:var(--fg-3)}
+  body.theme-light .trust-row{color:var(--fg-3)}
+  body.theme-light .trust-row .metric b{color:var(--fg-1)}
+  body.theme-light .trust-sep{background:var(--border)}
+  body.theme-light .btn-ghost-dark{color:var(--fg-1);background:transparent;border-color:var(--border-strong)}
+  body.theme-light .btn-ghost-dark:hover{background:var(--gray-50)}
+  body.theme-light .pipeline-wrap{background:#F9FAFB;color:var(--fg-1);border:1px solid var(--border)}
+  body.theme-light .pipeline-wrap .section-head h2{color:var(--fg-1)}
+  body.theme-light .pipeline-wrap .section-head p{color:var(--fg-3)}
+  body.theme-light .agent-card{background:#fff;border-color:var(--border)}
+  body.theme-light .agent-card:hover{background:#fff;border-color:rgba(99,102,241,0.4)}
+  body.theme-light .agent-num{color:var(--fg-3)}
+  body.theme-light .agent-num .chip{background:var(--indigo-50);border-color:var(--indigo-100);color:var(--primary-hover)}
+  body.theme-light .agent-card svg.icon{color:var(--primary)}
+  body.theme-light .agent-name{color:var(--fg-1)}
+  body.theme-light .agent-desc{color:var(--fg-3)}
+  body.theme-light .agent-tech{color:var(--primary)}
+  body.theme-light .agent-card .flow-tag{color:var(--fg-4)}
+  body.theme-light .final-cta{background:radial-gradient(ellipse 60% 80% at 50% 100%, #EEF2FF 0%, #F5F3FF 50%, #fff 100%);color:var(--fg-1);border-color:var(--border)}
+  body.theme-light .final-cta::before{background-image:linear-gradient(rgba(99,102,241,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.08) 1px, transparent 1px)}
+  body.theme-light .final-cta .glow{background:rgba(139,92,246,0.2)}
+  body.theme-light .final-cta h2{color:var(--fg-1)}
+  body.theme-light .final-cta p{color:var(--fg-3)}
+  body.theme-light footer{background:#F9FAFB;color:var(--fg-3);border-top-color:var(--border)}
+  body.theme-light footer .foot-brand .logo-row{color:var(--fg-1)}
+  body.theme-light footer .foot-col h6{color:var(--fg-2)}
+  body.theme-light footer .foot-col a{color:var(--fg-3)}
+  body.theme-light footer .foot-col a:hover{color:var(--fg-1)}
+  body.theme-light footer .foot-bottom{border-top-color:var(--border);color:var(--fg-4)}
+
+  /* Scroll animations */
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity 700ms var(--ease-standard), transform 700ms var(--ease-standard)}
+  .reveal.in{opacity:1;transform:none}
+  .reveal.d1{transition-delay:80ms}
+  .reveal.d2{transition-delay:160ms}
+  .reveal.d3{transition-delay:240ms}
+  .reveal.d4{transition-delay:320ms}
+
+  /* Responsive */
+  @media (max-width: 900px){
+    .ps-grid, .results-grid, .pipeline-grid, .benefits, .audience, .tech-grid{grid-template-columns:1fr}
+    .pipeline-grid{grid-template-columns:1fr 1fr}
+    .benefits{grid-template-columns:1fr 1fr}
+    .section{padding:80px 0}
+    .hero{padding:56px 0 80px}
+    .nav-links{display:none}
+  }
+  @media (max-width: 600px){
+    .pipeline-grid,.benefits,.audience{grid-template-columns:1fr}
+    .container{padding:0 20px}
+    #pipelineCanvas{height:260px}
+  }
+</style>
+</head>
+<body class="theme-hybrid">
+
+<!-- ========== NAV ========== -->
+<nav class="nav" data-screen-label="Nav">
+  <div class="container">
+    <div class="nav-logo">
+      <img src="/static/assets/logo-mark.png" alt="SEO Agents" />
+      <span>SEO Agents</span>
+    </div>
+    <div class="nav-links">
+      <a href="#pipeline">Как работает</a>
+      <a href="#result">Результат</a>
+      <a href="#benefits">Преимущества</a>
+      <a href="#faq">FAQ</a>
+      <a href="/projects">Приложение</a>
+    </div>
+    <div class="nav-cta">
+      <a href="/projects" class="btn btn-ghost-nav">Войти</a>
+      <a href="/projects" class="btn btn-primary">Начать бесплатно</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ========== HERO ========== -->
+<section class="hero" data-screen-label="01 Hero">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-glow-1"></div>
+  <div class="hero-glow-2"></div>
+
+  <div class="container">
+    <div class="eyebrow reveal">
+      <span class="dot">8</span>
+      <span id="heroEyebrow">AI-агентов в одном пайплайне</span>
+    </div>
+
+    <h1 class="reveal d1" id="heroTitle">
+      AI-агенты для&nbsp;семантического ядра — <span class="grad">от сбора до плана действий</span>
+    </h1>
+
+    <p class="lead reveal d2" id="heroLead">
+      8 специализированных агентов автоматически собирают, расширяют, кластеризуют
+      и приоритизируют поисковые запросы. Вы получаете не список ключей,
+      а готовый план: какие страницы создать, какие обновить, и в каком порядке.
+    </p>
+
+    <div class="hero-actions reveal d3">
+      <a href="/projects" class="btn btn-primary btn-lg">
+        Попробовать бесплатно
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+
+    <div class="trust-row reveal d4">
+      <div class="metric"><b data-count="8">0</b> AI-агентов</div>
+      <div class="trust-sep"></div>
+      <div class="metric"><b data-count="4">0</b> источника данных</div>
+      <div class="trust-sep"></div>
+      <div class="metric"><b data-count="92" data-suffix="%">0%</b> автоматизации рутины</div>
+      <div class="trust-sep"></div>
+      <div class="metric"><b data-count="3" data-suffix=" мин">0 мин</b> до плана</div>
+    </div>
+
+    <!-- Hero visual: pipeline canvas -->
+    <div class="hero-visual reveal d4">
+      <div class="hero-visual-header">
+        <div class="title"><span class="live"></span>Пайплайн · проект "Диваны"</div>
+        <div class="crumbs">
+          <span>seeds: 12</span>
+          <span>keywords: 8 473</span>
+          <span>clusters: 87</span>
+          <span>priority plan: ready</span>
+        </div>
+      </div>
+      <canvas id="pipelineCanvas"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- ========== PROBLEM / SOLUTION ========== -->
+<section class="section" data-screen-label="02 Проблема/решение">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-eyebrow reveal">Проблема и решение</div>
+      <h2 class="reveal d1">Семантическое ядро — это не список ключей</h2>
+      <p class="reveal d2">Большинство инструментов заканчиваются там, где работа только начинается. Мы идём до плана.</p>
+    </div>
+
+    <div class="ps-grid">
+      <div class="ps-col bad reveal">
+        <div class="ps-label">Как обычно</div>
+        <h3>Ручной сбор в Excel</h3>
+        <ul class="ps-list">
+          <li><span class="ps-icon">✕</span>Копируете ключи из KeyCollector → получаете 10 000 фраз</li>
+          <li><span class="ps-icon">✕</span>Вручную чистите от мусора → тратите 2 дня</li>
+          <li><span class="ps-icon">✕</span>Группируете в Excel → теряете логику</li>
+          <li><span class="ps-icon">✕</span>Не знаете, что делать с результатом</li>
+        </ul>
+        <div class="ps-outcome">Итог: таблица, которая пылится</div>
+      </div>
+
+      <div class="ps-col good reveal d1">
+        <div class="ps-label">С SEO Agents</div>
+        <h3>Автоматический пайплайн</h3>
+        <ul class="ps-list">
+          <li><span class="ps-icon">✓</span>AI собирает запросы из 4+ источников автоматически</li>
+          <li><span class="ps-icon">✓</span>Чистит мусор и определяет интент каждого запроса</li>
+          <li><span class="ps-icon">✓</span>Кластеризует с учётом SERP и бизнес-логики</li>
+          <li><span class="ps-icon">✓</span>Маппит на страницы: создать / обновить / не брать</li>
+        </ul>
+        <div class="ps-outcome">Итог: план действий с приоритетами</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== PIPELINE ========== -->
+<section class="section" id="pipeline" data-screen-label="03 Пайплайн">
+  <div class="container">
+    <div class="pipeline-wrap">
+      <div class="section-head">
+        <div class="section-eyebrow reveal" style="color:#A5B4FC">Архитектура</div>
+        <h2 class="reveal d1">8 агентов. Один пайплайн. Полная автоматизация.</h2>
+        <p class="reveal d2">Каждый агент специализирован на своей задаче и передаёт данные следующему в цепочке.</p>
+      </div>
+
+      <div class="pipeline-grid" id="agentsGrid"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== RESULTS ========== -->
+<section class="section" id="result" data-screen-label="04 Результат">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-eyebrow reveal">Пример результата</div>
+      <h2 class="reveal d1">Не просто ключи — а план роста трафика</h2>
+      <p class="reveal d2">Кластеры, интенты, действия, приоритеты. Всё готово к передаче в контент-отдел.</p>
+    </div>
+
+    <div class="results-grid">
+      <!-- Browser mockup -->
+      <div class="browser reveal">
+        <div class="browser-bar">
+          <div class="dots"><span></span><span></span><span></span></div>
+          <div class="url-pill">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            app.seoagents.ru/projects/divany/results
+          </div>
+        </div>
+        <div class="browser-body">
+          <div class="browser-toolbar">
+            <span class="chip active">Все кластеры (87)</span>
+            <span class="chip">Critical (7)</span>
+            <span class="chip">High (23)</span>
+            <span class="chip">Medium (41)</span>
+            <span class="chip">Low (16)</span>
+          </div>
+          <table class="results">
+            <thead>
+              <tr>
+                <th>Кластер</th>
+                <th>Интент</th>
+                <th>Действие</th>
+                <th>Приоритет</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div class="kw">Диваны для сна</div>
+                  <div class="kw-sub">/divany-dlya-sna/ · 12 ключей</div>
+                </td>
+                <td><span class="badge commercial">Коммерческий</span></td>
+                <td><span class="badge create">Создать</span></td>
+                <td><div class="prio critical"><span>87</span><div class="prio-bar"><div class="prio-fill" style="width:87%"></div></div><span class="prio-label">Critical</span></div></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="kw">Диваны для кухни</div>
+                  <div class="kw-sub">/divany-dlya-kuhni/ · 9 ключей</div>
+                </td>
+                <td><span class="badge commercial">Коммерческий</span></td>
+                <td><span class="badge create">Создать</span></td>
+                <td><div class="prio high"><span>79</span><div class="prio-bar"><div class="prio-fill" style="width:79%"></div></div><span class="prio-label">High</span></div></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="kw">Маленькие диваны</div>
+                  <div class="kw-sub">/malenkie-divany/ · 14 ключей</div>
+                </td>
+                <td><span class="badge commercial">Коммерческий</span></td>
+                <td><span class="badge create">Создать</span></td>
+                <td><div class="prio high"><span>74</span><div class="prio-bar"><div class="prio-fill" style="width:74%"></div></div><span class="prio-label">High</span></div></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="kw">Как выбрать диван</div>
+                  <div class="kw-sub">/blog/kak-vybrat-divan/ · 21 ключ</div>
+                </td>
+                <td><span class="badge informational">Информационный</span></td>
+                <td><span class="badge create">Создать</span></td>
+                <td><div class="prio medium"><span>61</span><div class="prio-bar"><div class="prio-fill" style="width:61%"></div></div><span class="prio-label">Medium</span></div></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="kw">Угловые диваны</div>
+                  <div class="kw-sub">/uglovye-divany/ · 18 ключей</div>
+                </td>
+                <td><span class="badge commercial">Коммерческий</span></td>
+                <td><span class="badge update">Обновить</span></td>
+                <td><div class="prio medium"><span>58</span><div class="prio-bar"><div class="prio-fill" style="width:58%"></div></div><span class="prio-label">Medium</span></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Stats col -->
+      <div class="stats-col">
+        <div class="stat-card reveal">
+          <div class="stat-overline">Всего ключей собрано</div>
+          <div class="stat-value" data-count="8473">0</div>
+          <div class="stat-delta">+ 2 140 после расширения</div>
+          <svg class="stat-spark" viewBox="0 0 300 44" preserveAspectRatio="none">
+            <defs><linearGradient id="spg1" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#6366F1" stop-opacity="0.4"/>
+              <stop offset="1" stop-color="#6366F1" stop-opacity="0"/>
+            </linearGradient></defs>
+            <path d="M0 36 L30 32 L60 33 L90 28 L120 24 L150 26 L180 18 L210 14 L240 12 L270 8 L300 4 L300 44 L0 44 Z" fill="url(#spg1)"/>
+            <path d="M0 36 L30 32 L60 33 L90 28 L120 24 L150 26 L180 18 L210 14 L240 12 L270 8 L300 4" fill="none" stroke="#6366F1" stroke-width="2"/>
+          </svg>
+        </div>
+
+        <div class="stat-card reveal d1">
+          <div class="stat-overline">Кластеров выделено</div>
+          <div class="stat-value accent" data-count="87">0</div>
+          <div class="stat-delta">30 новых страниц · 16 на обновление</div>
+          <div style="display:flex;gap:4px;margin-top:16px">
+            <div style="flex:7;height:6px;background:#DC2626;border-radius:3px" title="Critical"></div>
+            <div style="flex:23;height:6px;background:#059669;border-radius:3px" title="High"></div>
+            <div style="flex:41;height:6px;background:#D97706;border-radius:3px" title="Medium"></div>
+            <div style="flex:16;height:6px;background:#9CA3AF;border-radius:3px" title="Low"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:10px;color:var(--fg-3);font-family:var(--font-mono)">
+            <span>7 Critical</span><span>23 High</span><span>41 Med</span><span>16 Low</span>
+          </div>
+        </div>
+
+        <div class="stat-card reveal d2">
+          <div class="stat-overline">Потенциал трафика</div>
+          <div class="stat-value" data-count="142000" data-suffix="/мес">0</div>
+          <div class="stat-delta">из Яндекса и Google по данным Wordstat</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pull-quote reveal">
+      <p><span class="mark">“</span>Плохой инструмент даёт 10 000 ключей. Хороший&nbsp;— 34 кластера, 7 с высоким приоритетом, 9 новых страниц и объяснение почему.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ========== BENEFITS ========== -->
+<section class="section" id="benefits" data-screen-label="05 Преимущества">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-eyebrow reveal">Преимущества</div>
+      <h2 class="reveal d1">Почему SEO Agents</h2>
+    </div>
+    <div class="benefits" id="benefitsGrid"></div>
+  </div>
+</section>
+
+<!-- ========== AUDIENCE ========== -->
+<section class="section" style="padding-top:0" data-screen-label="06 Для кого">
+  <div class="container">
+    <div class="section-head">
+      <h2 class="reveal">Кому подойдёт</h2>
+      <p class="reveal d1">SEO Agents работает одинаково хорошо для команды из одного человека и агентства на 50+ клиентов.</p>
+    </div>
+    <div class="audience">
+      <div class="aud-card reveal">
+        <div class="aud-tag">SEO-специалистам</div>
+        <h4>Автоматизация рутины</h4>
+        <p>Автоматизируйте сбор и кластеризацию. Фокусируйтесь на стратегии, а не на ручной работе с таблицами.</p>
+      </div>
+      <div class="aud-card reveal d1">
+        <div class="aud-tag">Маркетологам</div>
+        <h4>План контента с приоритетами</h4>
+        <p>Понимайте, какие страницы создавать и в каком порядке. Получайте план с приоритетами — от критических кластеров до long-tail.</p>
+      </div>
+      <div class="aud-card reveal d2">
+        <div class="aud-tag">Владельцам магазинов</div>
+        <h4>Точки роста трафика</h4>
+        <p>Узнайте, какие категории добавить, какие страницы обновить и где конкуренты уже обогнали вас по охвату.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== TECH ========== -->
+<section class="section" style="padding-top:0" data-screen-label="07 Технологии">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-eyebrow reveal">Под капотом</div>
+      <h2 class="reveal d1">Современный стек, мультиагентная архитектура</h2>
+    </div>
+    <div class="tech-grid">
+      <div class="tech-card reveal">
+        <div class="logo" style="background:linear-gradient(135deg,#3776AB,#FFD43B)">Py</div>
+        <h5>Python · FastAPI</h5>
+        <span>Асинхронный бэкенд</span>
+      </div>
+      <div class="tech-card reveal d1">
+        <div class="logo" style="background:linear-gradient(135deg,var(--accent),var(--accent-2))">AI</div>
+        <h5>OpenRouter · LLM</h5>
+        <span>Мозг агентов</span>
+      </div>
+      <div class="tech-card reveal d2">
+        <div class="logo" style="background:linear-gradient(135deg,#4285F4,#34A853)">G</div>
+        <h5>Google APIs</h5>
+        <span>Suggest · Trends · GSC</span>
+      </div>
+      <div class="tech-card reveal d3">
+        <div class="logo" style="background:linear-gradient(135deg,#2496ED,#0db7ed)">{ }</div>
+        <h5>Docker</h5>
+        <span>Контейнеризация · деплой</span>
+      </div>
+    </div>
+    <div class="tech-note reveal d2">
+      Мультиагентная архитектура на базе современных LLM. Каждый агент специализирован на своей задаче
+      и передаёт данные следующему в цепочке — предсказуемо, воспроизводимо и без галлюцинаций.
+    </div>
+  </div>
+</section>
+
+<!-- ========== FAQ ========== -->
+<section class="section" id="faq" style="padding-top:0" data-screen-label="08 FAQ">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-eyebrow reveal">FAQ</div>
+      <h2 class="reveal d1">Частые вопросы</h2>
+    </div>
+    <div class="faq">
+      <details class="faq-item reveal" open>
+        <summary>Чем вы отличаетесь от KeyCollector, Ahrefs, Semrush?
+          <span class="plus"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg></span>
+        </summary>
+        <div class="faq-body">
+          Классические инструменты останавливаются на сборе и экспорте ключей. Мы идём дальше: кластеризуем
+          по SERP-логике, маппим на страницы и расставляем приоритеты. На выходе — план действий, а не CSV.
+        </div>
+      </details>
+      <details class="faq-item reveal d1">
+        <summary>Откуда берутся ключевые слова?
+          <span class="plus"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg></span>
+        </summary>
+        <div class="faq-body">
+          Google Suggest, Google Trends, Yandex Wordstat, Search Console, SERP-конкуренты и LLM-генерация long-tail.
+          Это реальные данные — не галлюцинации.
+        </div>
+      </details>
+      <details class="faq-item reveal d2">
+        <summary>Как работает кластеризация?
+          <span class="plus"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg></span>
+        </summary>
+        <div class="faq-body">
+          Не по похожести слов, а по SERP: если у двух запросов пересекаются топ-10 — они в одном кластере.
+          Плюс LLM оценивает интент и бизнес-логику, чтобы близкие по смыслу, но разные по намерению ключи
+          не попали на одну страницу.
+        </div>
+      </details>
+      <details class="faq-item reveal d3">
+        <summary>Можно ли интегрировать с нашей CMS?
+          <span class="plus"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg></span>
+        </summary>
+        <div class="faq-body">
+          Да. Результаты выгружаются в CSV/XLSX, доступно API и webhook'и. Маппинг на страницы делается
+          по sitemap — SEO Agents сам находит существующие URL и определяет, что создавать, а что обновлять.
+        </div>
+      </details>
+      <details class="faq-item reveal d4">
+        <summary>Сколько времени занимает один проект?
+          <span class="plus"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg></span>
+        </summary>
+        <div class="faq-body">
+          В среднем 3-8 минут от ввода seed-ключей до готового плана. Зависит от объёма ядра
+          и количества конкурентов, которых нужно проанализировать.
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ========== FINAL CTA ========== -->
+<section class="section" id="cta" style="padding-top:0" data-screen-label="09 CTA">
+  <div class="container">
+    <div class="final-cta">
+      <div class="glow"></div>
+      <h2 class="reveal">Начните расширять семантическое ядро<br/>уже сейчас</h2>
+      <p class="reveal d1">Создайте проект, укажите стартовые ключи — и получите готовый план за минуты. Бесплатно, без карты.</p>
+      <div class="reveal d2">
+        <a href="/projects" class="btn btn-primary btn-xl" style="box-shadow:0 8px 30px rgba(99,102,241,0.55), inset 0 1px 0 rgba(255,255,255,0.3)">
+          Начать бесплатно
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+      <div class="reveal d3" style="margin-top:24px;font-size:13px;opacity:0.7">
+        Первый проект — бесплатно · 100 ключей в месяц на Free плане
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== FOOTER ========== -->
+<footer data-screen-label="10 Footer">
+  <div class="container">
+    <div class="foot-brand">
+      <div class="logo-row"><img src="/static/assets/logo-mark.png" alt=""/> SEO Agents</div>
+      <p>Платформа для расширения семантического ядра на базе 8 специализированных AI-агентов.</p>
+    </div>
+    <div class="foot-cols">
+      <div class="foot-col">
+        <h6>Продукт</h6>
+        <a href="#pipeline">Как работает</a>
+        <a href="#result">Пример результата</a>
+        <a href="#benefits">Преимущества</a>
+        <a href="#faq">FAQ</a>
+      </div>
+      <div class="foot-col">
+        <h6>Ресурсы</h6>
+        <a href="#">Документация</a>
+        <a href="#">API</a>
+        <a href="#">GitHub</a>
+        <a href="#">Поддержка</a>
+      </div>
+      <div class="foot-col">
+        <h6>Компания</h6>
+        <a href="#">О проекте</a>
+        <a href="#">Блог</a>
+        <a href="#">Контакты</a>
+      </div>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <div>© 2026 SEO Agents · Создано с использованием AI-технологий</div>
+    <div>RU · v1.0</div>
+  </div>
+</footer>
+
+<!-- ========== TWEAKS PANEL ========== -->
+<div id="tweaksPanel">
+  <h6>Tweaks</h6>
+  <div class="tw-sub">Настройте внешний вид страницы</div>
+
+  <div class="tw-group">
+    <label>Тема</label>
+    <div class="tw-opts" data-tw="theme">
+      <button class="tw-opt" data-val="hybrid">Гибрид</button>
+      <button class="tw-opt" data-val="light">Светлая</button>
+      <button class="tw-opt" data-val="dark">Тёмная</button>
+    </div>
+  </div>
+
+  <div class="tw-group">
+    <label>Hero-вариант</label>
+    <div class="tw-opts" data-tw="hero">
+      <button class="tw-opt" data-val="plan">План</button>
+      <button class="tw-opt" data-val="speed">Скорость</button>
+      <button class="tw-opt" data-val="agents">Команда</button>
+    </div>
+  </div>
+
+  <div class="tw-group">
+    <label>Акцент</label>
+    <div class="tw-swatches" data-tw="accent">
+      <div class="tw-swatch" data-val="indigo" style="background:linear-gradient(135deg,#6366F1,#8B5CF6)"></div>
+      <div class="tw-swatch" data-val="cyan" style="background:linear-gradient(135deg,#0EA5E9,#6366F1)"></div>
+      <div class="tw-swatch" data-val="emerald" style="background:linear-gradient(135deg,#10B981,#0EA5E9)"></div>
+      <div class="tw-swatch" data-val="sunset" style="background:linear-gradient(135deg,#F59E0B,#DC2626)"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+//  Config & data
+// ============================================================
+const AGENTS = [
+  {name:"Research Agent", tech:"ResearchAgent", desc:"Собирает данные: сайт, конкуренты, Search Console, поисковые подсказки.", icon:"search"},
+  {name:"Expansion Agent", tech:"ExpansionAgent", desc:"Расширяет ядро: Google Suggest, Trends, LLM-генерация long-tail.", icon:"expand"},
+  {name:"Cleaning Agent", tech:"CleaningAgent", desc:"Удаляет мусор: дубли, нерелевантные, слишком общие запросы.", icon:"filter"},
+  {name:"Intent Agent", tech:"IntentAgent", desc:"Определяет интент: коммерческий, информационный, транзакционный.", icon:"target"},
+  {name:"Clustering Agent", tech:"ClusteringAgent", desc:"Группирует запросы: 1 кластер = 1 интент = 1 страница.", icon:"cluster"},
+  {name:"Mapping Agent", tech:"MappingAgent", desc:"Маппит на страницы: создать новую, обновить существующую, пропустить.", icon:"map"},
+  {name:"Prioritization Agent", tech:"PrioritizationAgent", desc:"Расставляет приоритеты по бизнес-ценности и потенциалу.", icon:"chart"},
+  {name:"Feedback Agent", tech:"FeedbackAgent", desc:"Анализирует результаты после публикации и предлагает улучшения.", icon:"loop"},
+];
+
+const ICONS = {
+  search: '<path d="M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16ZM21 21l-4.3-4.3"/>',
+  expand: '<path d="M14 4h6v6M4 20l16-16M10 20H4v-6M20 14v6h-6"/>',
+  filter:'<path d="M3 4h18l-7 9v7l-4-2v-5L3 4Z"/>',
+  target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/>',
+  cluster:'<circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="18" r="2.5"/><circle cx="12" cy="12" r="2.5"/><path d="M8 7l3 4M16 7l-3 4M8 17l3-4M16 17l-3-4"/>',
+  map:'<path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2V6Z"/><path d="M9 4v16M15 6v16"/>',
+  chart:'<path d="M3 20h18M7 16V11M12 16V6M17 16v-7"/><path d="M5 8l6-3 4 2 5-4"/>',
+  loop:'<path d="M21 12a9 9 0 1 1-3-6.7M21 3v5h-5"/>',
+};
+
+const BENEFITS = [
+  {title:"Полный цикл", desc:"От seed-ключей до плана действий за один запуск. Не нужно переключаться между инструментами.", icon:'<path d="M21 12a9 9 0 1 1-3-6.7M21 3v5h-5"/>'},
+  {title:"AI-классификация", desc:"LLM определяет интент, оценивает бизнес-ценность и предлагает тип страницы для каждого запроса.", icon:'<circle cx="12" cy="12" r="4"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l2.5 2.5M16.5 16.5L19 19M5 19l2.5-2.5M16.5 7.5L19 5"/>'},
+  {title:"Умная кластеризация", desc:"Не по похожести слов, а по SERP-логике. Семантически близкие фразы могут требовать разных страниц.", icon:'<circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="M8 7l3 9M16 7l-3 9"/>'},
+  {title:"Реальные источники", desc:"Google Suggest, Trends, Wordstat, конкуренты, Search Console — только реальные данные, не галлюцинации AI.", icon:'<path d="M4 4h16v4H4zM4 12h16v4H4zM4 20h10"/>'},
+  {title:"Приоритизация", desc:"Scoring из 7 факторов: спрос, бизнес-ценность, конкуренция, интент, тренды, контент-гэп, каннибализация.", icon:'<path d="M3 20h18M7 16V10M12 16V4M17 16v-8"/>'},
+  {title:"Экспорт и API", desc:"Результаты в CSV/XLSX, таблицы с фильтрами, REST API и webhooks для интеграции с вашим стеком.", icon:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>'},
+];
+
+const HERO_VARIANTS = {
+  plan: {
+    eyebrow: "8 AI-агентов в одном пайплайне",
+    title: 'AI-агенты для&nbsp;семантического ядра — <span class="grad">от сбора до плана действий</span>',
+    lead: "8 специализированных агентов автоматически собирают, расширяют, кластеризуют и приоритизируют поисковые запросы. Вы получаете не список ключей, а готовый план: какие страницы создать, какие обновить, и в каком порядке.",
+  },
+  speed: {
+    eyebrow: "3 минуты вместо 3 дней",
+    title: 'Семантика за&nbsp;3 минуты — <span class="grad">а не за две недели</span>',
+    lead: "То, на что SEO-специалист тратит 3 дня работы с KeyCollector и Excel, AI-пайплайн делает за считанные минуты. С приоритетами, кластерами и маппингом на страницы — сразу в работу.",
+  },
+  agents: {
+    eyebrow: "Мультиагентная архитектура",
+    title: 'Команда из&nbsp;8 AI-агентов <span class="grad">работает над вашим ядром</span>',
+    lead: "Research, Expansion, Cleaning, Intent, Clustering, Mapping, Prioritization, Feedback — каждый агент специализируется на своей задаче и передаёт данные следующему. Никакой магии — только отлаженный пайплайн.",
+  },
+};
+
+// ============================================================
+//  Populate agents + benefits
+// ============================================================
+(function(){
+  const grid = document.getElementById("agentsGrid");
+  grid.innerHTML = AGENTS.map((a,i)=>`
+    <div class="agent-card reveal d${Math.min(i%4,4)}">
+      <span class="flow-tag">${String(i+1).padStart(2,"0")}/08</span>
+      <div class="agent-num"><span class="chip">${i+1}</span></div>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${ICONS[a.icon]}</svg>
+      <div class="agent-name">${a.name}</div>
+      <div class="agent-tech">${a.tech}</div>
+      <div class="agent-desc">${a.desc}</div>
+    </div>
+  `).join("");
+
+  const bg = document.getElementById("benefitsGrid");
+  bg.innerHTML = BENEFITS.map((b,i)=>`
+    <div class="benefit reveal d${i%3}">
+      <div class="benefit-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${b.icon}</svg></div>
+      <h4>${b.title}</h4>
+      <p>${b.desc}</p>
+    </div>
+  `).join("");
+})();
+
+// ============================================================
+//  Reveal on scroll
+// ============================================================
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } });
+},{threshold:0.12});
+document.querySelectorAll(".reveal").forEach(el=>io.observe(el));
+
+// ============================================================
+//  Count-up numbers
+// ============================================================
+function formatNum(n){
+  return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g," ");
+}
+const countIO = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(!e.isIntersecting) return;
+    const el = e.target;
+    const target = parseFloat(el.dataset.count);
+    const suffix = el.dataset.suffix || "";
+    const dur = 1400;
+    const start = performance.now();
+    function tick(now){
+      const t = Math.min(1,(now-start)/dur);
+      const eased = 1 - Math.pow(1-t,3);
+      el.textContent = formatNum(target*eased) + suffix;
+      if(t<1) requestAnimationFrame(tick);
+      else el.textContent = formatNum(target) + suffix;
+    }
+    requestAnimationFrame(tick);
+    countIO.unobserve(el);
+  });
+},{threshold:0.3});
+document.querySelectorAll("[data-count]").forEach(el=>countIO.observe(el));
+
+// ============================================================
+//  Canvas pipeline — SEO keywords flowing through 8 AI agents
+//  Left: raw keyword stream.  Middle: 8 agent nodes with icons.
+//  Right: clustered output — groups of keywords with priority.
+// ============================================================
+(function(){
+  const canvas = document.getElementById("pipelineCanvas");
+  const ctx = canvas.getContext("2d");
+  let W, H, dpr;
+
+  const N = 8;
+  const labels   = ["Research","Expand","Clean","Intent","Cluster","Map","Priority","Feedback"];
+  // Tiny glyphs drawn as simple unicode / shapes per node (pure canvas)
+  const glyphs   = ["⌕","+","✕","◎","◇","⇢","▲","↻"];
+
+  // Raw SEO keywords that stream into the pipeline on the left
+  const RAW_KEYWORDS = [
+    "купить диван","диван для сна","угловой диван","как выбрать диван",
+    "диван в гостиную","недорогие диваны","диван еврокнижка","диван ikea",
+    "лучшие диваны 2026","диван с доставкой","чистка дивана","размеры диванов",
+    "диван раскладной","диван с ящиком","маленький диван","модульный диван",
+  ];
+  // Output clusters on the right — labelled with priority
+  const CLUSTERS = [
+    {label:"Диваны для сна",    prio:"Critical", color:"#EF4444", count:12},
+    {label:"Угловые диваны",    prio:"High",     color:"#F59E0B", count:18},
+    {label:"Как выбрать диван", prio:"Medium",   color:"#10B981", count:21},
+    {label:"Маленькие диваны",  prio:"High",     color:"#F59E0B", count:14},
+  ];
+
+  function resize(){
+    dpr = window.devicePixelRatio || 1;
+    const r = canvas.getBoundingClientRect();
+    W = r.width; H = r.height;
+    canvas.width = W*dpr; canvas.height = H*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  resize();
+  window.addEventListener("resize", resize);
+
+  // Layout: pipeline nodes occupy middle 60%. Left 20% = keyword stream, right 20% = clusters.
+  function layout(){
+    const leftW  = W * 0.20;
+    const rightW = W * 0.22;
+    const midX0  = leftW + 24;
+    const midX1  = W - rightW - 24;
+    const y = H * 0.52;
+    const nodes = [];
+    for(let i=0;i<N;i++){
+      const x = midX0 + (midX1 - midX0) * (i/(N-1));
+      const yy = y + Math.sin(i*0.9)*14;
+      nodes.push({x, y:yy, label:labels[i], glyph:glyphs[i]});
+    }
+    return {nodes, leftW, rightW, midX0, midX1, y};
+  }
+
+  // Streaming keyword tokens (left → first node)
+  const tokens = [];
+  function spawnToken(){
+    const kw = RAW_KEYWORDS[Math.floor(Math.random()*RAW_KEYWORDS.length)];
+    tokens.push({
+      kw, t: 0,                       // 0..1 entering pipeline
+      laneY: 30 + Math.random()*(H - 60),
+      speed: 0.0035 + Math.random()*0.002,
+      alpha: 0,
+    });
+  }
+
+  // Particles that travel between nodes inside the pipeline
+  const particles = [];
+  function spawnParticle(){
+    particles.push({
+      t: 0,
+      speed: 0.006 + Math.random()*0.004,
+      hue: 230 + Math.random()*40,
+      size: 1.8 + Math.random()*1.4,
+      alpha: 0.85,
+    });
+  }
+  for(let i=0;i<20;i++) particles.push({
+    t: Math.random()*(N-1),
+    speed: 0.006+Math.random()*0.004,
+    hue: 230+Math.random()*40,
+    size: 1.8+Math.random()*1.4, alpha: 0.8,
+  });
+
+  // Output pulses from last node → each cluster box
+  const pulses = [];
+  function spawnPulse(){
+    pulses.push({
+      ci: Math.floor(Math.random()*CLUSTERS.length),
+      t: 0, speed: 0.012 + Math.random()*0.006,
+    });
+  }
+
+  let last = performance.now();
+
+  function drawBezier(a, b, lift){
+    const cx = (a.x+b.x)/2, cy = (a.y+b.y)/2 - lift;
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.quadraticCurveTo(cx, cy, b.x, b.y);
+    ctx.stroke();
+  }
+  function bezierPoint(a,b,frac,lift){
+    const cx = (a.x+b.x)/2, cy = (a.y+b.y)/2 - lift;
+    const x = (1-frac)*(1-frac)*a.x + 2*(1-frac)*frac*cx + frac*frac*b.x;
+    const y = (1-frac)*(1-frac)*a.y + 2*(1-frac)*frac*cy + frac*frac*b.y;
+    return {x,y};
+  }
+
+  function loop(now){
+    const dt = now - last; last = now;
+    ctx.clearRect(0,0,W,H);
+
+    const L = layout();
+    const {nodes, midX0, midX1} = L;
+
+    // ---------- LEFT: "keywords" panel label ----------
+    ctx.save();
+    ctx.font = "500 10px 'Google Sans Flex', sans-serif";
+    ctx.fillStyle = "rgba(148,163,184,0.7)";
+    ctx.textAlign = "left"; ctx.textBaseline = "top";
+    ctx.fillText("KEYWORDS · STREAM", 4, 6);
+    ctx.restore();
+
+    // ---------- RIGHT: "clusters" panel label ----------
+    ctx.save();
+    ctx.font = "500 10px 'Google Sans Flex', sans-serif";
+    ctx.fillStyle = "rgba(148,163,184,0.7)";
+    ctx.textAlign = "right"; ctx.textBaseline = "top";
+    ctx.fillText("CLUSTERS · PLAN", W - 4, 6);
+    ctx.restore();
+
+    // ---------- KEYWORD STREAM (left side) ----------
+    // Tokens flow right, fade in, get "consumed" by the first node.
+    ctx.font = "500 11px 'JetBrains Mono', monospace";
+    ctx.textBaseline = "middle";
+    for(let i = tokens.length - 1; i >= 0; i--){
+      const tk = tokens[i];
+      tk.t += tk.speed * (dt/16.66);
+      if(tk.t >= 1){ tokens.splice(i,1); continue; }
+      // ease in alpha, ease out near the end
+      tk.alpha = Math.min(1, tk.t*4) * (1 - Math.max(0,(tk.t-0.75)/0.25));
+      const x = 8 + tk.t * (midX0 - 16);
+      // small hash dot
+      ctx.fillStyle = `rgba(56,189,248,${tk.alpha*0.9})`;
+      ctx.beginPath(); ctx.arc(x-8, tk.laneY, 1.5, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = `rgba(203,213,225,${tk.alpha})`;
+      ctx.textAlign = "left";
+      ctx.fillText(tk.kw, x, tk.laneY);
+    }
+    if(Math.random() < 0.09 && tokens.length < 14) spawnToken();
+
+    // Funnel lines from stream area into first node
+    ctx.strokeStyle = "rgba(56,189,248,0.15)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(midX0 - 30, 20); ctx.lineTo(nodes[0].x - 4, nodes[0].y - 4);
+    ctx.moveTo(midX0 - 30, H - 20); ctx.lineTo(nodes[0].x - 4, nodes[0].y + 4);
+    ctx.stroke();
+
+    // ---------- PIPELINE CONNECTORS ----------
+    ctx.lineWidth = 1.2;
+    for(let i=0;i<nodes.length-1;i++){
+      const a = nodes[i], b = nodes[i+1];
+      const g = ctx.createLinearGradient(a.x,a.y,b.x,b.y);
+      g.addColorStop(0,"rgba(99,102,241,0.45)");
+      g.addColorStop(1,"rgba(139,92,246,0.45)");
+      ctx.strokeStyle = g;
+      drawBezier(a,b,14);
+    }
+
+    // ---------- PARTICLES THROUGH PIPELINE ----------
+    for(let p of particles){
+      p.t += p.speed * (dt/16.66);
+      if(p.t >= N-1) p.t = 0;
+      const i = Math.floor(p.t);
+      const frac = p.t - i;
+      const a = nodes[i], b = nodes[i+1] || nodes[nodes.length-1];
+      const {x,y} = bezierPoint(a,b,frac,14);
+      const grad = ctx.createRadialGradient(x,y,0,x,y,p.size*6);
+      grad.addColorStop(0,`hsla(${p.hue},85%,72%,${p.alpha})`);
+      grad.addColorStop(1,`hsla(${p.hue},85%,72%,0)`);
+      ctx.fillStyle = grad;
+      ctx.beginPath(); ctx.arc(x,y,p.size*6,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = `hsla(${p.hue},95%,88%,1)`;
+      ctx.beginPath(); ctx.arc(x,y,p.size,0,Math.PI*2); ctx.fill();
+    }
+    if(Math.random()<0.08) spawnParticle();
+    if(particles.length>100) particles.splice(0, particles.length-100);
+
+    // ---------- NODES ----------
+    for(let i=0;i<nodes.length;i++){
+      const n = nodes[i];
+      const pulse = 1 + Math.sin(now*0.002 + i*0.6)*0.1;
+      // halo
+      const hg = ctx.createRadialGradient(n.x,n.y,2,n.x,n.y,26);
+      hg.addColorStop(0,"rgba(99,102,241,0.55)");
+      hg.addColorStop(1,"rgba(99,102,241,0)");
+      ctx.fillStyle = hg;
+      ctx.beginPath(); ctx.arc(n.x, n.y, 22*pulse, 0, Math.PI*2); ctx.fill();
+      // core
+      const ng = ctx.createLinearGradient(n.x-15,n.y-15,n.x+15,n.y+15);
+      ng.addColorStop(0,"#6366F1"); ng.addColorStop(1,"#8B5CF6");
+      ctx.fillStyle = ng;
+      ctx.beginPath(); ctx.arc(n.x, n.y, 15, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = "rgba(255,255,255,0.3)";
+      ctx.lineWidth = 1.5; ctx.stroke();
+      // glyph
+      ctx.fillStyle = "#fff";
+      ctx.font = "700 13px 'Google Sans Flex', sans-serif";
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText(n.glyph, n.x, n.y+1);
+      // step number above
+      ctx.fillStyle = "rgba(165,180,252,0.85)";
+      ctx.font = "600 9px 'JetBrains Mono', monospace";
+      ctx.fillText("0"+(i+1), n.x, n.y - 28);
+      // label below
+      ctx.fillStyle = "rgba(203,213,225,0.88)";
+      ctx.font = "500 11px 'Google Sans Flex', sans-serif";
+      ctx.fillText(n.label, n.x, n.y + 32);
+    }
+
+    // ---------- RIGHT: OUTPUT CLUSTERS ----------
+    const lastNode = nodes[nodes.length-1];
+    const clusterX = W - L.rightW + 10;
+    const gap = 10;
+    const cardH = (H - 40 - gap*(CLUSTERS.length-1)) / CLUSTERS.length;
+    const cardW = L.rightW - 16;
+    const cardCenters = [];
+    for(let i=0;i<CLUSTERS.length;i++){
+      const c = CLUSTERS[i];
+      const cy = 24 + i*(cardH+gap);
+      const cx = clusterX;
+      // card
+      ctx.fillStyle = "rgba(30,41,59,0.55)";
+      ctx.strokeStyle = "rgba(99,102,241,0.25)";
+      ctx.lineWidth = 1;
+      roundRect(ctx, cx, cy, cardW, cardH, 8, true, true);
+      // priority dot
+      ctx.fillStyle = c.color;
+      ctx.beginPath(); ctx.arc(cx + 10, cy + 12, 3.5, 0, Math.PI*2); ctx.fill();
+      // label
+      ctx.fillStyle = "#F1F5F9";
+      ctx.font = "600 11px 'Google Sans Flex', sans-serif";
+      ctx.textAlign = "left"; ctx.textBaseline = "middle";
+      ctx.fillText(c.label, cx + 20, cy + 12);
+      // meta
+      ctx.fillStyle = "rgba(148,163,184,0.85)";
+      ctx.font = "500 9px 'JetBrains Mono', monospace";
+      ctx.fillText(c.prio.toUpperCase() + " · " + c.count + " kw", cx + 20, cy + 26);
+      // mini bar
+      const barY = cy + cardH - 8;
+      ctx.fillStyle = "rgba(148,163,184,0.18)";
+      roundRect(ctx, cx + 10, barY, cardW - 20, 3, 1.5, true, false);
+      ctx.fillStyle = c.color;
+      const fill = (cardW - 20) * (0.45 + 0.4*Math.sin(now*0.001 + i));
+      roundRect(ctx, cx + 10, barY, fill, 3, 1.5, true, false);
+
+      cardCenters.push({x: cx, y: cy + cardH/2, color: c.color});
+    }
+
+    // Connectors from last node to each cluster card + pulses
+    for(let i=0;i<cardCenters.length;i++){
+      const c = cardCenters[i];
+      const g = ctx.createLinearGradient(lastNode.x, lastNode.y, c.x, c.y);
+      g.addColorStop(0, "rgba(139,92,246,0.45)");
+      g.addColorStop(1, c.color + "66");
+      ctx.strokeStyle = g;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(lastNode.x + 14, lastNode.y);
+      const mx = (lastNode.x + c.x)/2;
+      ctx.bezierCurveTo(mx, lastNode.y, mx, c.y, c.x, c.y);
+      ctx.stroke();
+    }
+
+    // Pulses along output connectors
+    for(let i = pulses.length-1; i >= 0; i--){
+      const pu = pulses[i];
+      pu.t += pu.speed * (dt/16.66);
+      if(pu.t >= 1){ pulses.splice(i,1); continue; }
+      const c = cardCenters[pu.ci];
+      const mx = (lastNode.x + c.x)/2;
+      // cubic bezier point
+      const t = pu.t;
+      const mt = 1-t;
+      const x = mt*mt*mt*(lastNode.x+14) + 3*mt*mt*t*mx + 3*mt*t*t*mx + t*t*t*c.x;
+      const y = mt*mt*mt*lastNode.y + 3*mt*mt*t*lastNode.y + 3*mt*t*t*c.y + t*t*t*c.y;
+      ctx.fillStyle = c.color;
+      ctx.beginPath(); ctx.arc(x, y, 2.4, 0, Math.PI*2); ctx.fill();
+      const g = ctx.createRadialGradient(x,y,0,x,y,10);
+      g.addColorStop(0, c.color + "80");
+      g.addColorStop(1, c.color + "00");
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(x, y, 10, 0, Math.PI*2); ctx.fill();
+    }
+    if(Math.random() < 0.06) spawnPulse();
+
+    requestAnimationFrame(loop);
+  }
+
+  function roundRect(ctx,x,y,w,h,r,fill,stroke){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,x+w,y+h,r);
+    ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r);
+    ctx.arcTo(x,y,x+w,y,r);
+    ctx.closePath();
+    if(fill) ctx.fill();
+    if(stroke) ctx.stroke();
+  }
+
+  requestAnimationFrame(loop);
+})();
+
+// ============================================================
+//  Tweaks panel
+// ============================================================
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "theme": "hybrid",
+  "hero": "speed",
+  "accent": "sunset"
+}/*EDITMODE-END*/;
+
+let tweaks = {...TWEAK_DEFAULTS};
+
+const ACCENTS = {
+  indigo: {a:"#6366F1", b:"#8B5CF6", c:"#38BDF8"},
+  cyan:   {a:"#0EA5E9", b:"#6366F1", c:"#22D3EE"},
+  emerald:{a:"#10B981", b:"#0EA5E9", c:"#6EE7B7"},
+  sunset: {a:"#F59E0B", b:"#DC2626", c:"#FB923C"},
+};
+
+function applyTheme(t){
+  document.body.classList.remove("theme-hybrid","theme-light","theme-dark");
+  document.body.classList.add("theme-"+t);
+}
+function applyAccent(name){
+  const p = ACCENTS[name] || ACCENTS.indigo;
+  document.documentElement.style.setProperty("--accent", p.a);
+  document.documentElement.style.setProperty("--accent-2", p.b);
+  document.documentElement.style.setProperty("--accent-3", p.c);
+}
+function applyHero(v){
+  const data = HERO_VARIANTS[v] || HERO_VARIANTS.plan;
+  document.getElementById("heroEyebrow").innerHTML = data.eyebrow;
+  document.getElementById("heroTitle").innerHTML = data.title;
+  document.getElementById("heroLead").innerHTML = data.lead;
+}
+function applyAll(){
+  applyTheme(tweaks.theme);
+  applyAccent(tweaks.accent);
+  applyHero(tweaks.hero);
+  // Mark active buttons
+  document.querySelectorAll("[data-tw]").forEach(group=>{
+    const k = group.dataset.tw;
+    group.querySelectorAll("[data-val]").forEach(b=>{
+      b.classList.toggle("active", b.dataset.val === tweaks[k]);
+    });
+  });
+}
+applyAll();
+
+// wire buttons
+document.querySelectorAll("#tweaksPanel [data-tw]").forEach(group=>{
+  const k = group.dataset.tw;
+  group.querySelectorAll("[data-val]").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      tweaks[k] = b.dataset.val;
+      applyAll();
+      try{ window.parent.postMessage({type:"__edit_mode_set_keys", edits:{[k]: tweaks[k]}}, "*"); }catch(e){}
+    });
+  });
+});
+
+// edit-mode protocol
+window.addEventListener("message", (e)=>{
+  const d = e.data || {};
+  if(d.type === "__activate_edit_mode") document.getElementById("tweaksPanel").classList.add("open");
+  else if(d.type === "__deactivate_edit_mode") document.getElementById("tweaksPanel").classList.remove("open");
+});
+try{ window.parent.postMessage({type:"__edit_mode_available"}, "*"); }catch(e){}
+</script>
+</body>
+</html>

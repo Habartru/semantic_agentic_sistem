@@ -1,0 +1,261 @@
+/* SEO Agents — Design Tokens
+ * Colors, typography, spacing, radii, shadows
+ * Import this file in any design artifact to inherit the brand system.
+ */
+
+@font-face {
+  font-family: 'Google Sans Flex';
+  src: url('/static/fonts/GoogleSansFlex-VariableFont_GRAD_ROND_opsz_slnt_wdth_wght.ttf') format('truetype-variations'),
+       url('/static/fonts/GoogleSansFlex-VariableFont_GRAD_ROND_opsz_slnt_wdth_wght.ttf') format('truetype');
+  font-weight: 100 1000;
+  font-style: normal;
+  font-display: swap;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  /* ---------- Brand / Primary ---------- */
+  --indigo-50:  #EEF2FF;
+  --indigo-100: #E0E7FF;
+  --indigo-200: #C7D2FE;
+  --indigo-300: #A5B4FC;
+  --indigo-400: #818CF8;   /* primary light — hover bg */
+  --indigo-500: #6366F1;
+  --indigo-600: #4F46E5;   /* PRIMARY */
+  --indigo-700: #4338CA;   /* primary hover */
+  --indigo-800: #3730A3;   /* primary dark — headings/pressed */
+  --indigo-900: #312E81;
+
+  --primary:          var(--indigo-600);
+  --primary-hover:    var(--indigo-700);
+  --primary-light:    var(--indigo-400);
+  --primary-dark:     var(--indigo-800);
+  --primary-subtle:   var(--indigo-50);
+
+  /* ---------- Semantic: Success / High ---------- */
+  --green-50:  #ECFDF5;
+  --green-100: #D1FAE5;
+  --green-500: #10B981;
+  --green-600: #059669;
+  --green-700: #047857;
+  --green-800: #065F46;
+
+  --success:        var(--green-600);
+  --success-bg:     var(--green-100);
+  --success-fg:     var(--green-800);
+
+  /* ---------- Semantic: Warning / Medium ---------- */
+  --amber-50:  #FFFBEB;
+  --amber-100: #FEF3C7;
+  --amber-500: #F59E0B;
+  --amber-600: #D97706;
+  --amber-800: #92400E;
+
+  --warning:        var(--amber-600);
+  --warning-bg:     var(--amber-100);
+  --warning-fg:     var(--amber-800);
+
+  /* ---------- Semantic: Danger / Critical ---------- */
+  --red-50:  #FEF2F2;
+  --red-100: #FEE2E2;
+  --red-500: #EF4444;
+  --red-600: #DC2626;
+  --red-800: #991B1B;
+
+  --danger:         var(--red-600);
+  --danger-bg:      var(--red-100);
+  --danger-fg:      var(--red-800);
+
+  /* ---------- Semantic: Info ---------- */
+  --blue-50:  #EFF6FF;
+  --blue-100: #DBEAFE;
+  --blue-500: #3B82F6;
+  --blue-600: #2563EB;
+  --blue-800: #1E40AF;
+
+  --info:           var(--blue-600);
+  --info-bg:        var(--blue-100);
+  --info-fg:        var(--blue-800);
+
+  /* ---------- Intent badges ---------- */
+  --intent-commercial-bg:    #DBEAFE;   /* blue */
+  --intent-commercial-fg:    #1E40AF;
+  --intent-transactional-bg: #EDE9FE;   /* violet */
+  --intent-transactional-fg: #5B21B6;
+  --intent-informational-bg: #CFFAFE;   /* cyan */
+  --intent-informational-fg: #155E75;
+  --intent-local-bg:         #FFEDD5;   /* orange */
+  --intent-local-fg:         #9A3412;
+  --intent-comparison-bg:    #FCE7F3;   /* pink */
+  --intent-comparison-fg:    #9D174D;
+
+  /* ---------- Action badges ---------- */
+  --action-create-bg: #D1FAE5;  --action-create-fg: #065F46;   /* green */
+  --action-update-bg: #FEF3C7;  --action-update-fg: #92400E;   /* amber */
+  --action-skip-bg:   #F3F4F6;  --action-skip-fg:   #374151;   /* gray */
+  --action-merge-bg:  #DBEAFE;  --action-merge-fg:  #1E40AF;   /* blue */
+  --action-faq-bg:    #EDE9FE;  --action-faq-fg:    #5B21B6;   /* violet */
+
+  /* ---------- Neutral scale ---------- */
+  --gray-50:  #F9FAFB;
+  --gray-100: #F3F4F6;
+  --gray-200: #E5E7EB;
+  --gray-300: #D1D5DB;
+  --gray-400: #9CA3AF;
+  --gray-500: #6B7280;
+  --gray-600: #4B5563;
+  --gray-700: #374151;
+  --gray-800: #1F2937;
+  --gray-900: #111827;
+
+  /* ---------- Surfaces ---------- */
+  --bg-app:      #F9FAFB;   /* main app bg */
+  --bg-card:     #FFFFFF;
+  --bg-muted:    #F3F4F6;
+  --bg-subtle:   #F9FAFB;
+  --border:      #E5E7EB;
+  --border-strong: #D1D5DB;
+  --divider:     #F3F4F6;
+
+  /* ---------- Text ---------- */
+  --fg-1: #111827;   /* primary text / headings */
+  --fg-2: #374151;   /* body */
+  --fg-3: #6B7280;   /* captions / secondary */
+  --fg-4: #9CA3AF;   /* placeholder / disabled */
+  --fg-invert: #FFFFFF;
+
+  /* ---------- Typography ---------- */
+  --font-sans: 'Google Sans Flex', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+
+  --text-xs:   12px;   /* caption */
+  --text-sm:   14px;   /* body / buttons */
+  --text-base: 16px;   /* card titles */
+  --text-lg:   18px;
+  --text-xl:   20px;   /* H3 */
+  --text-2xl:  24px;   /* H2 */
+  --text-3xl:  30px;   /* H1 */
+  --text-4xl:  36px;
+  --text-5xl:  48px;   /* display / stat numbers */
+
+  --leading-tight:  1.2;
+  --leading-snug:   1.35;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.65;
+
+  /* ---------- Radii ---------- */
+  --radius-badge:  4px;
+  --radius-input:  8px;
+  --radius-btn:    8px;
+  --radius-card:  12px;
+  --radius-modal: 16px;
+  --radius-pill:  999px;
+
+  /* ---------- Shadows ---------- */
+  --shadow-nav:    0 1px 2px rgba(0,0,0,0.05);
+  --shadow-card:   0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-card-hover: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+  --shadow-pop:    0 10px 15px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.05);
+  --shadow-modal:  0 25px 50px rgba(0,0,0,0.25);
+  --ring-primary:  0 0 0 3px rgba(99,102,241,0.25);
+  --ring-danger:   0 0 0 3px rgba(239,68,68,0.25);
+
+  /* ---------- Spacing scale (4px base) ---------- */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ---------- Layout ---------- */
+  --navbar-h: 64px;
+  --container: 1280px;
+  --sidebar-w: 240px;
+
+  /* ---------- Motion ---------- */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasized: cubic-bezier(0.3, 0, 0, 1.2);
+  --dur-fast: 120ms;
+  --dur-base: 180ms;
+  --dur-slow: 280ms;
+}
+
+/* ---------- Semantic type roles ---------- */
+
+.h1 {
+  font-family: var(--font-sans);
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  line-height: var(--leading-tight);
+  color: var(--fg-1);
+  letter-spacing: -0.02em;
+}
+.h2 {
+  font-family: var(--font-sans);
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  line-height: var(--leading-snug);
+  color: var(--fg-1);
+  letter-spacing: -0.01em;
+}
+.h3 {
+  font-family: var(--font-sans);
+  font-size: var(--text-xl);
+  font-weight: 600;
+  line-height: var(--leading-snug);
+  color: var(--fg-2);
+}
+.card-title {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--fg-1);
+}
+.body {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 400;
+  line-height: var(--leading-normal);
+  color: var(--fg-2);
+}
+.caption {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 400;
+  color: var(--fg-3);
+}
+.overline {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+.btn-text {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  line-height: 1;
+}
+.mono {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--fg-2);
+}
+
+/* ---------- Global baseline ---------- */
+html, body {
+  font-family: var(--font-sans);
+  color: var(--fg-2);
+  background: var(--bg-app);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

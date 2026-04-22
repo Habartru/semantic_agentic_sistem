@@ -20,7 +20,7 @@ class AppConfig:
     # Модель OpenRouter по умолчанию
     OPENROUTER_MODEL: str = os.getenv(
         "OPENROUTER_MODEL",
-        "anthropic/claude-sonnet-4"
+        "qwen/qwen3.6-plus"
     )
 
     # URL подключения к базе данных (async SQLite)

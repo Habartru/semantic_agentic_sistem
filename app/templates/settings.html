@@ -5,139 +5,145 @@
 {% block content %}
 <div class="max-w-3xl mx-auto">
     <div class="mb-6">
-        <a href="/projects" class="inline-flex items-center text-sm text-gray-500 hover:text-gray-700">
-            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        <a href="/projects" class="inline-flex items-center text-sm transition" style="color: var(--fg-3);"
+           onmouseover="this.style.color='var(--fg-1)'" onmouseout="this.style.color='var(--fg-3)'">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"></path>
             </svg>
             Назад к проектам
         </a>
     </div>
 
-    <h1 class="text-3xl font-bold text-gray-900 mb-8">Настройки</h1>
+    <h1 class="h1 mb-8">Настройки</h1>
 
-    <form id="settings-form" action="/settings" method="post" class="space-y-8">
+    <form id="settings-form" action="/settings" method="post" class="space-y-6">
         <!-- API ключи -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
-                </svg>
-                API ключи
-            </h2>
+        <div class="bg-white" style="border: 1px solid var(--border); border-radius: var(--radius-card); box-shadow: var(--shadow-card); padding: 24px;">
+            <h2 class="card-title mb-1">API ключи</h2>
+            <p class="caption mb-5">Ключ OpenRouter используется для работы AI-агентов.</p>
 
             <div class="space-y-4">
                 <div>
-                    <label for="openrouter_api_key" class="block text-sm font-medium text-gray-700 mb-1">OpenRouter API Key</label>
+                    <label for="openrouter_api_key" class="caption block mb-1.5">OpenRouter API Key</label>
                     <div class="relative">
                         <input type="password" id="openrouter_api_key" name="openrouter_api_key"
                             value="{{ openrouter_api_key or '' }}"
-                            class="w-full px-3 py-2.5 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                            class="w-full px-3 py-2.5 pr-10 transition"
+                            style="border: 1px solid var(--border); border-radius: var(--radius-input); font-size: 14px; color: var(--fg-2); background: #fff;"
+                            onfocus="this.style.borderColor='var(--primary)'; this.style.boxShadow='var(--ring-primary)';"
+                            onblur="this.style.borderColor='var(--border)'; this.style.boxShadow='none';"
                             placeholder="sk-or-v1-...">
-                        <button type="button" id="toggle-key" class="absolute inset-y-0 right-0 px-3 text-gray-400 hover:text-gray-600">
-                            <svg id="eye-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        <button type="button" id="toggle-key" class="absolute inset-y-0 right-0 px-3 transition" style="color: var(--fg-4);"
+                                onmouseover="this.style.color='var(--fg-2)'" onmouseout="this.style.color='var(--fg-4)'">
+                            <svg id="eye-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                             </svg>
                         </button>
                     </div>
-                    <p class="text-xs text-gray-400 mt-1">Ключ хранится в базе данных приложения.</p>
+                    <p class="caption mt-1">Ключ хранится в базе данных приложения.</p>
                 </div>
 
-                <div class="flex items-center space-x-3">
+                <div class="flex items-center gap-3">
                     <button type="button" id="test-connection"
-                        class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium transition">
-                        <svg id="test-icon" class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        class="inline-flex items-center gap-2 font-medium transition"
+                        style="padding: 8px 16px; border-radius: var(--radius-btn); font-size: 14px; color: var(--fg-2); background: transparent; border: 1px solid var(--border);"
+                        onmouseover="this.style.background='var(--bg-muted)'" onmouseout="this.style.background='transparent'">
+                        <svg id="test-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"></path>
                         </svg>
                         Проверить подключение
                     </button>
-                    <div id="connection-status" class="flex items-center space-x-2 hidden">
-                        <span id="status-dot" class="w-2.5 h-2.5 rounded-full bg-gray-300"></span>
-                        <span id="status-text" class="text-sm text-gray-600"></span>
+                    <div id="connection-status" class="flex items-center gap-2 hidden">
+                        <span id="status-dot" class="w-2.5 h-2.5 rounded-full" style="background: var(--gray-300);"></span>
+                        <span id="status-text" class="text-sm" style="color: var(--fg-3);"></span>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Модель LLM -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                </svg>
-                Модель LLM
-            </h2>
+        <div class="bg-white" style="border: 1px solid var(--border); border-radius: var(--radius-card); box-shadow: var(--shadow-card); padding: 24px;">
+            <h2 class="card-title mb-1">Модель LLM</h2>
+            <p class="caption mb-5">Модель, которую используют агенты.</p>
 
             <div>
-                <label for="openrouter_model" class="block text-sm font-medium text-gray-700 mb-1">Модель OpenRouter</label>
+                <label for="openrouter_model" class="caption block mb-1.5">Модель OpenRouter</label>
                 <select id="openrouter_model" name="openrouter_model"
-                    class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition bg-white">
-                    <option value="anthropic/claude-sonnet-4" {% if openrouter_model == "anthropic/claude-sonnet-4" %}selected{% endif %}>anthropic/claude-sonnet-4</option>
-                    <option value="openai/gpt-4o" {% if openrouter_model == "openai/gpt-4o" %}selected{% endif %}>openai/gpt-4o</option>
-                    <option value="google/gemini-2.0-flash" {% if openrouter_model == "google/gemini-2.0-flash" %}selected{% endif %}>google/gemini-2.0-flash</option>
+                    class="w-full px-3 py-2.5 transition"
+                    style="border: 1px solid var(--border); border-radius: var(--radius-input); font-size: 14px; color: var(--fg-2); background: #fff;"
+                    onfocus="this.style.borderColor='var(--primary)'; this.style.boxShadow='var(--ring-primary)';"
+                    onblur="this.style.borderColor='var(--border)'; this.style.boxShadow='none';">
+                    <option value="moonshotai/kimi-k2.6" {% if openrouter_model == "moonshotai/kimi-k2.6" %}selected{% endif %}>moonshotai/kimi-k2.6</option>
+                    <option value="z-ai/glm-5.1" {% if openrouter_model == "z-ai/glm-5.1" %}selected{% endif %}>z-ai/glm-5.1</option>
+                    <option value="qwen/qwen3.6-plus" {% if openrouter_model == "qwen/qwen3.6-plus" %}selected{% endif %}>qwen/qwen3.6-plus</option>
                 </select>
-                <p class="text-xs text-gray-400 mt-1">Рекомендуемые модели: Claude Sonnet 4, GPT-4o, Gemini 2.0 Flash.</p>
+                <p class="caption mt-1">Рекомендуемые модели: moonshotai/kimi-k2.6, z-ai/glm-5.1, qwen/qwen3.6-plus.</p>
             </div>
         </div>
 
         <!-- Информация о сервисах -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                Информация о сервисах
-            </h2>
-
+        <div class="bg-white" style="border: 1px solid var(--border); border-radius: var(--radius-card); box-shadow: var(--shadow-card); overflow: hidden;">
+            <div style="padding: 20px 24px; border-bottom: 1px solid var(--border);">
+                <h2 class="card-title">Сервисы</h2>
+                <p class="caption mt-1">Внешние источники данных, которые использует пайплайн.</p>
+            </div>
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
+                <table class="min-w-full" style="font-size: 13px; border-collapse: collapse;">
                     <thead>
-                        <tr>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Сервис</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Статус</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Описание</th>
+                        <tr style="background: var(--bg-subtle);">
+                            <th class="text-left px-4 py-2.5" style="font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--fg-3); border-bottom: 1px solid var(--border);">Сервис</th>
+                            <th class="text-left px-4 py-2.5" style="font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--fg-3); border-bottom: 1px solid var(--border);">Требует ключ</th>
+                            <th class="text-left px-4 py-2.5" style="font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--fg-3); border-bottom: 1px solid var(--border);">Статус</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-200">
+                    <tbody>
                         <tr>
-                            <td class="px-4 py-3 text-sm text-gray-900 font-medium">Google Suggest</td>
-                            <td class="px-4 py-3">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                    <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></span>
+                            <td class="px-4 py-3 font-medium" style="color: var(--fg-1); border-bottom: 1px solid var(--divider);">Google Suggest</td>
+                            <td class="px-4 py-3" style="color: var(--fg-2); border-bottom: 1px solid var(--divider);">Нет</td>
+                            <td class="px-4 py-3" style="border-bottom: 1px solid var(--divider);">
+                                <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium" style="border-radius: 999px; background: var(--success-bg); color: var(--success-fg);">
+                                    <span class="w-1.5 h-1.5 rounded-full mr-1.5" style="background: var(--success);"></span>
                                     Бесплатно
                                 </span>
                             </td>
-                            <td class="px-4 py-3 text-sm text-gray-500">Не требует ключа API</td>
                         </tr>
                         <tr>
-                            <td class="px-4 py-3 text-sm text-gray-900 font-medium">Google Trends</td>
-                            <td class="px-4 py-3">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                    <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></span>
+                            <td class="px-4 py-3 font-medium" style="color: var(--fg-1); border-bottom: 1px solid var(--divider);">Google Trends</td>
+                            <td class="px-4 py-3" style="color: var(--fg-2); border-bottom: 1px solid var(--divider);">Нет</td>
+                            <td class="px-4 py-3" style="border-bottom: 1px solid var(--divider);">
+                                <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium" style="border-radius: 999px; background: var(--success-bg); color: var(--success-fg);">
+                                    <span class="w-1.5 h-1.5 rounded-full mr-1.5" style="background: var(--success);"></span>
                                     Бесплатно
                                 </span>
                             </td>
-                            <td class="px-4 py-3 text-sm text-gray-500">Не требует ключа API</td>
                         </tr>
                         <tr>
-                            <td class="px-4 py-3 text-sm text-gray-900 font-medium">Парсер конкурентов</td>
-                            <td class="px-4 py-3">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                    <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></span>
+                            <td class="px-4 py-3 font-medium" style="color: var(--fg-1); border-bottom: 1px solid var(--divider);">Парсер конкурентов</td>
+                            <td class="px-4 py-3" style="color: var(--fg-2); border-bottom: 1px solid var(--divider);">Нет</td>
+                            <td class="px-4 py-3" style="border-bottom: 1px solid var(--divider);">
+                                <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium" style="border-radius: 999px; background: var(--success-bg); color: var(--success-fg);">
+                                    <span class="w-1.5 h-1.5 rounded-full mr-1.5" style="background: var(--success);"></span>
                                     Бесплатно
                                 </span>
                             </td>
-                            <td class="px-4 py-3 text-sm text-gray-500">Не требует ключа API</td>
                         </tr>
                         <tr>
-                            <td class="px-4 py-3 text-sm text-gray-900 font-medium">OpenRouter LLM</td>
-                            <td class="px-4 py-3">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if openrouter_api_key %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
-                                    <span class="w-1.5 h-1.5 {% if openrouter_api_key %}bg-green-500{% else %}bg-yellow-500{% endif %} rounded-full mr-1.5"></span>
-                                    {% if openrouter_api_key %}Настроен{% else %}Требует ключ{% endif %}
+                            <td class="px-4 py-3 font-medium" style="color: var(--fg-1); border-bottom: 1px solid var(--divider);">OpenRouter LLM</td>
+                            <td class="px-4 py-3" style="color: var(--fg-2); border-bottom: 1px solid var(--divider);">Да</td>
+                            <td class="px-4 py-3" style="border-bottom: 1px solid var(--divider);">
+                                {% if openrouter_api_key %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium" style="border-radius: 999px; background: var(--success-bg); color: var(--success-fg);">
+                                    <span class="w-1.5 h-1.5 rounded-full mr-1.5" style="background: var(--success);"></span>
+                                    Настроен
                                 </span>
+                                {% else %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium" style="border-radius: 999px; background: var(--warning-bg); color: var(--warning-fg);">
+                                    <span class="w-1.5 h-1.5 rounded-full mr-1.5" style="background: var(--warning);"></span>
+                                    Требует ключ
+                                </span>
+                                {% endif %}
                             </td>
-                            <td class="px-4 py-3 text-sm text-gray-500">Требует API-ключ OpenRouter</td>
                         </tr>
                     </tbody>
                 </table>
@@ -145,10 +151,13 @@
         </div>
 
         <!-- Сохранить -->
-        <div class="flex items-center justify-end space-x-3 pt-2">
+        <div class="flex items-center justify-end pt-2">
             <button type="submit"
-                class="px-6 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium transition shadow-sm">
-                Сохранить
+                class="inline-flex items-center font-medium text-white transition"
+                style="background: var(--primary); padding: 10px 24px; border-radius: var(--radius-btn); font-size: 14px;"
+                onmouseover="this.style.background='var(--primary-hover)'"
+                onmouseout="this.style.background='var(--primary)'">
+                Сохранить настройки
             </button>
         </div>
     </form>
@@ -177,8 +186,9 @@
     testBtn.addEventListener('click', async function() {
         testBtn.disabled = true;
         statusDiv.classList.remove('hidden');
-        statusDot.className = 'w-2.5 h-2.5 rounded-full bg-gray-300';
-        statusText.textContent = 'Проверка...';
+        statusDot.style.background = 'var(--gray-300)';
+        statusText.textContent = 'Проверка';
+        statusText.style.color = 'var(--fg-3)';
 
         try {
             const response = await fetch('/api/settings/test-connection', {
@@ -188,18 +198,18 @@
             const data = await response.json();
 
             if (data.success) {
-                statusDot.className = 'w-2.5 h-2.5 rounded-full bg-green-500';
-                statusText.textContent = data.message || 'Подключение успешно';
-                statusText.className = 'text-sm text-green-700';
+                statusDot.style.background = 'var(--success)';
+                statusText.textContent = data.message || 'Подключение активно';
+                statusText.style.color = 'var(--success)';
             } else {
-                statusDot.className = 'w-2.5 h-2.5 rounded-full bg-red-500';
+                statusDot.style.background = 'var(--danger)';
                 statusText.textContent = data.message || 'Ошибка подключения';
-                statusText.className = 'text-sm text-red-700';
+                statusText.style.color = 'var(--danger)';
             }
         } catch (err) {
-            statusDot.className = 'w-2.5 h-2.5 rounded-full bg-red-500';
+            statusDot.style.background = 'var(--danger)';
             statusText.textContent = 'Ошибка сети';
-            statusText.className = 'text-sm text-red-700';
+            statusText.style.color = 'var(--danger)';
         } finally {
             testBtn.disabled = false;
         }

@@ -67,10 +67,12 @@ templates = Environment(loader=PackageLoader("app", "templates"))
 
 # ========== Роуты ==========
 
-@app.get("/", response_class=RedirectResponse)
-async def root():
-    """Корневой роут — редирект на список проектов."""
-    return RedirectResponse(url="/projects")
+@app.get("/", response_class=HTMLResponse)
+async def landing_page(request: Request):
+    """Лендинг — главная страница."""
+    template = templates.get_template("landing.html")
+    html = template.render(request=request)
+    return HTMLResponse(content=html)
 
 
 @app.get("/projects", response_class=HTMLResponse)
