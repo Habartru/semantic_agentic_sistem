@@ -46,7 +46,9 @@ app = FastAPI(
     title="SEO Agents",
     description="Платформа SEO-агентов для расширения семантического ядра",
     version="0.1.0",
-    lifespan=lifespan
+    lifespan=lifespan,
+    docs_url=None,
+    redoc_url=None,
 )
 
 # Настройка CORS middleware
@@ -66,6 +68,14 @@ templates = Environment(loader=PackageLoader("app", "templates"))
 
 
 # ========== Роуты ==========
+
+@app.get("/docs", response_class=HTMLResponse)
+async def docs_page(request: Request):
+    """Страница документации пайплайна."""
+    template = templates.get_template("docs.html")
+    html = template.render(request=request)
+    return HTMLResponse(content=html)
+
 
 @app.get("/", response_class=HTMLResponse)
 async def landing_page(request: Request):

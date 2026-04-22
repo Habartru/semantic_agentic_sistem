@@ -11,16 +11,36 @@ from typing import List, Dict, Any, Optional
 
 from openai import AsyncOpenAI
 
-from app.config import settings
+from app.config import settings, get_setting
 
 # Настройка логирования
 logger = logging.getLogger(__name__)
 
-# Инициализация клиента OpenRouter
-client = AsyncOpenAI(
-    base_url="https://openrouter.ai/api/v1",
-    api_key=settings.OPENROUTER_API_KEY,
-)
+OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
+
+
+async def _resolve_credentials(
+    model_override: Optional[str] = None,
+) -> tuple[str, str]:
+    """
+    Резолвит актуальные API-ключ и модель.
+
+    Приоритет: явный override → настройки в БД (/settings) → переменные окружения → дефолт.
+
+    Returns:
+        Кортеж (api_key, model).
+    """
+    api_key = (await get_setting("openrouter_api_key", None)) or settings.OPENROUTER_API_KEY
+    if model_override:
+        model = model_override
+    else:
+        model = (await get_setting("openrouter_model", None)) or settings.OPENROUTER_MODEL
+    return api_key or "", model or ""
+
+
+def _build_client(api_key: str) -> AsyncOpenAI:
+    """Создаёт свежий AsyncOpenAI-клиент с указанным ключом."""
+    return AsyncOpenAI(base_url=OPENROUTER_BASE_URL, api_key=api_key)
 
 
 class LLMService:
@@ -30,6 +50,11 @@ class LLMService:
     Предоставляет методы для SEO-задач: классификация интента,
     расширение семантического ядра, очистка, кластеризация,
     маппинг на страницы и приоритизация.
+
+    Модель и API-ключ резолвятся динамически перед каждым вызовом:
+    пользовательский override > настройки из БД (/settings) > env > дефолт.
+    Это гарантирует, что изменения модели/ключа через UI сразу применяются
+    без перезапуска процесса.
     """
 
     def __init__(self, model: Optional[str] = None):
@@ -37,8 +62,12 @@ class LLMService:
         Инициализация сервиса.
 
         Args:
-            model: Модель OpenRouter. Если не указана — используется OPENROUTER_MODEL из настроек.
+            model: Явный override модели. Если None — модель резолвится из БД/env
+                на каждый вызов LLM.
         """
+        self._model_override = model
+        # Оставлено для обратной совместимости: показывает модель "по умолчанию"
+        # из env в момент инициализации, но не используется для реальных вызовов.
         self.model = model or settings.OPENROUTER_MODEL
 
     async def _call_chat(
@@ -70,8 +99,13 @@ class LLMService:
             {"role": "user", "content": user_prompt},
         ]
 
+        # Динамический резолв креденшиалов перед каждым вызовом —
+        # чтобы смена модели/ключа в /settings применялась мгновенно.
+        api_key, model = await _resolve_credentials(self._model_override)
+        client = _build_client(api_key)
+
         kwargs: Dict[str, Any] = {
-            "model": self.model,
+            "model": model,
             "messages": messages,
             "temperature": temperature,
             "max_tokens": max_tokens,

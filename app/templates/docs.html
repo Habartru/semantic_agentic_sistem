@@ -1,0 +1,797 @@
+{% extends "base.html" %}
+
+{% block title %}Документация — SEO Agents{% endblock %}
+
+{% block extra_head %}
+<style>
+  .agent-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    padding: var(--space-6);
+    margin-bottom: var(--space-6);
+  }
+  .agent-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    margin-bottom: var(--space-5);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--divider);
+  }
+  .step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-pill);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: var(--text-lg);
+    color: var(--fg-invert);
+    background: var(--primary);
+    flex-shrink: 0;
+  }
+  .pipeline-arrow {
+    text-align: center;
+    color: var(--fg-3);
+    font-size: var(--text-sm);
+    margin: var(--space-2) 0;
+  }
+  .pipeline-diagram {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    padding: var(--space-6);
+    margin-bottom: var(--space-8);
+  }
+  .code-block {
+    background: var(--gray-900);
+    color: var(--gray-100);
+    border-radius: var(--radius-input);
+    padding: var(--space-4);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    overflow-x: auto;
+    line-height: 1.5;
+    margin: var(--space-3) 0;
+  }
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: var(--radius-badge);
+    font-size: var(--text-xs);
+    font-weight: 600;
+  }
+  .badge-llm {
+    background: var(--indigo-100);
+    color: var(--indigo-800);
+  }
+  .badge-local {
+    background: var(--green-100);
+    color: var(--green-800);
+  }
+  .badge-api {
+    background: var(--blue-100);
+    color: var(--blue-800);
+  }
+  .badge-fallback {
+    background: var(--amber-100);
+    color: var(--amber-800);
+  }
+  .section-title {
+    font-size: var(--text-2xl);
+    font-weight: 600;
+    color: var(--fg-1);
+    margin-bottom: var(--space-4);
+    letter-spacing: -0.01em;
+  }
+  .subsection-title {
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--fg-2);
+    margin-top: var(--space-4);
+    margin-bottom: var(--space-2);
+  }
+  .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-4);
+    margin: var(--space-4) 0;
+  }
+  .metric-box {
+    background: var(--bg-subtle);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-input);
+    padding: var(--space-4);
+  }
+  .metric-label {
+    font-size: var(--text-xs);
+    color: var(--fg-3);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: var(--space-1);
+  }
+  .metric-value {
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--fg-1);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto">
+
+  <!-- Заголовок -->
+  <div class="mb-8">
+    <h1 class="section-title">Документация пайплайна SEO Agents</h1>
+    <p class="body" style="max-width: 720px;">
+      Ниже описано полное внутреннее устройство системы: как данные проходят через 8 агентов,
+      какие внешние сервисы задействованы, где используется LLM, а где — только локальная обработка.
+      Все описания основаны на реальном исходном коде.
+    </p>
+  </div>
+
+  <!-- Схема пайплайна -->
+  <div class="pipeline-diagram">
+    <h2 class="subsection-title" style="margin-top: 0;">Общая схема пайплайна</h2>
+    <div class="code-block" style="background: var(--bg-muted); color: var(--fg-2);">
+Пользовательский ввод (URL, seed-ключи, конкуренты, описание бизнеса, гео)
+  &darr;
+ResearchAgent      &mdash; парсинг sitemap, мета-данных конкурентов (локально)
+  &darr;
+ExpansionAgent     &mdash; Google Suggest + Google Trends + LLM (2 итерации)
+  &darr;
+CleaningAgent      &mdash; дедупликация + LLM-фильтрация
+  &darr;
+IntentAgent        &mdash; LLM-классификация по 7 типам интента
+  &darr;
+ClusteringAgent    &mdash; LLM-кластеризация (fallback по интенту)
+  &darr;
+MappingAgent       &mdash; LLM-привязка к страницам (fallback транслитерация)
+  &darr;
+PrioritizationAgent &mdash; LLM-оценка по 7 факторам + взвешенная формула
+  &darr;
+FeedbackAgent      &mdash; заглушка для мониторинга
+  &darr;
+Сохранение в БД (KeywordResult) + SSE-прогресс
+    </div>
+    <div class="metric-grid">
+      <div class="metric-box">
+        <div class="metric-label">Агентов в цепочке</div>
+        <div class="metric-value">8</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">Внешних сервисов</div>
+        <div class="metric-value">4</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">LLM-вызовов</div>
+        <div class="metric-value">6 методов</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">База данных</div>
+        <div class="metric-value">SQLite async</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Доступные LLM модели -->
+  <div class="agent-card">
+    <h2 class="subsection-title" style="margin-top: 0;">Доступные LLM-модели через OpenRouter</h2>
+    <p class="body" style="margin-bottom: var(--space-3);">
+      Все LLM-вызовы идут через OpenRouter API (совместимый с OpenAI SDK).
+      Модель по умолчанию задаётся в переменной окружения <code>OPENROUTER_MODEL</code> или на странице настроек.
+      Рекомендуемые модели: Qwen 3.6 Plus (по умолчанию), Kimi K2.6, GLM 5.1.
+    </p>
+    <div class="code-block">
+base_url = "https://openrouter.ai/api/v1"
+model    = settings.OPENROUTER_MODEL   # fallback: "qwen/qwen3.6-plus"
+temperature варьируется от 0.2 до 0.7 в зависимости от задачи
+    </div>
+    <p class="body" style="margin-top: var(--space-3);">
+      Для каждого вызова используется retry-логика: 3 попытки с экспоненциальным backoff (2, 4, 8 сек).
+      Если LLM вернул невалидный JSON — делается до 2 дополнительных попыток с уточняющим промптом.
+    </p>
+  </div>
+
+  <!-- Agent 1: Research -->
+  <div class="agent-card">
+    <div class="agent-header">
+      <div class="step-number">1</div>
+      <div>
+        <div class="card-title">ResearchAgent — Исследование сайта и конкурентов</div>
+        <div class="caption">Анализирует сайт клиента и конкурентов, извлекает существующие страницы и мета-данные</div>
+      </div>
+    </div>
+
+    <span class="badge badge-local">Локальная обработка</span>
+    <span class="badge badge-api">Внешний API</span>
+
+    <div class="subsection-title">Входные данные</div>
+    <ul class="body" style="margin-left: 1.2rem; list-style: disc;">
+      <li><code>site_url</code> — URL сайта клиента (опционально)</li>
+      <li><code>seed_keywords</code> — стартовые ключевые слова из формы проекта</li>
+      <li><code>competitor_urls</code> — список URL конкурентов</li>
+      <li><code>business_description</code> — описание бизнеса</li>
+      <li><code>geo</code> — гео-таргетинг (по умолчанию "Москва")</li>
+    </ul>
+
+    <div class="subsection-title">Внешние сервисы</div>
+    <p class="body">
+      <strong>CompetitorService</strong> (httpx + BeautifulSoup + lxml). User-Agent: <code>Mozilla/5.0 (compatible; SEOBot/1.0)</code>.
+      Для каждого конкурента:
+    </p>
+    <ul class="body" style="margin-left: 1.2rem; list-style: disc;">
+      <li>Поиск sitemap по путям: <code>/sitemap.xml</code>, <code>/sitemap_index.xml</code>, а также через директиву <code>Sitemap:</code> в <code>robots.txt</code></li>
+      <li>Парсинг XML через lxml, извлечение всех <code>&lt;loc&gt;</code></li>
+      <li>Фильтрация URL: исключаются глубокие страницы товаров/статей (регулярные выражения), остаются категории и короткие пути (1-3 сегмента)</li>
+      <li>Для до 20 страниц на конкурента парсится HTML: title, meta description, h1, первые 5 h2</li>
+      <li>Задержка между запросами к страницам: 1-2 сек</li>
+    </ul>
+
+    <div class="subsection-title">Локальная обработка</div>
+    <ul class="body" style="margin-left: 1.2rem; list-style: disc;">
+      <li><code>_extract_keywords_from_pages</code> — извлекает ключевые слова из title и h1 конкурентов. title и h1 добавляются как потенциальные ключи, первая часть title (до 6 слов) также извлекается после удаления разделителей (<code>|</code>, <code>-</code>, <code>—</code>, <code>:</code>)</li>
+      <li><code>_build_business_context</code> — формирует строку контекста из описания бизнеса, гео и топ-20 категорий конкурентов</li>
+      <li>Объединение seed-ключей с извлечёнными, дедупликация через <code>dict.fromkeys</code></li>
+    </ul>
+
+    <div class="subsection-title">LLM обработка</div>
+    <p class="body">Не используется. Весь агент работает локально.</p>
+
+    <div class="subsection-title">Выходные данные</div>
+    <div class="code-block">
+{
+  "existing_pages":      ["https://client.ru/page1", ...],
+  "competitor_pages":    [{"url": "...", "title": "...", "h1": "...", "description": "..."}],
+  "competitor_keywords": ["категория 1", "категория 2"],
+  "seed_keywords":       ["ключ 1", "ключ 2", ...],
+  "business_context":    "Описание бизнеса: ...\nГео-таргетинг: ...\nКатегории конкурентов: ..."
+}
+    </div>
+  </div>
+
+  <!-- Agent 2: Expansion -->
+  <div class="agent-card">
+    <div class="agent-header">
+      <div class="step-number">2</div>
+      <div>
+        <div class="card-title">ExpansionAgent — Расширение семантического ядра</div>
+        <div class="caption">Итеративный цикл расширения ключевых слов через Google Suggest, Google Trends и LLM</div>
+      </div>
+    </div>
+
+    <span class="badge badge-api">Google Suggest</span>
+    <span class="badge badge-api">Google Trends</span>
+    <span class="badge badge-llm">LLM</span>
+
+    <div class="subsection-title">Входные данные</div>
+    <ul class="body" style="margin-left: 1.2rem; list-style: disc;">
+      <li><code>seed_keywords</code> — объединённые seed + ключи из ResearchAgent</li>
+      <li><code>business_context</code> — контекст бизнеса</li>
+      <li><code>geo</code> — гео-таргетинг</li>
+    </ul>
+
+    <div class="subsection-title">Внешние сервисы</div>
+    <p class="body"><strong>Google Suggest API</strong> — endpoint <code>suggestqueries.google.com/complete/search?client=firefox</code>. Параметры: <code>hl=ru</code>, <code>gl=ru</code>. Ответ парсится как JSON-массив, извлекается второй элемент (список подсказок). Между запросами задержка 0.5-1.5 сек. При ошибке — 3 попытки.</p>
+    <p class="body" style="margin-top: var(--space-2);"><strong>Google Trends</strong> — библиотека pytrends (<code>TrendReq(hl="ru", tz=180)</code>). Метод <code>related_queries()</code> возвращает top и rising запросы. Ограничение pytrends — 5 ключей за раз, поэтому разбиваем на батчи. Между батчами пауза 5 сек, при rate limit (429) — пауза 60 сек.</p>
+
+    <div class="subsection-title">Локальная обработка</div>
+    <ul class="body" style="margin-left: 1.2rem; list-style: disc;">
+      <li>Объединение результатов из трёх источников в множество <code>all_candidates</code></li>
+      <li>Источники каждого кандидата сохраняются в <code>sources</code>: <code>google_suggest_iter1/2</code>, <code>google_trends_iter1</code>, <code>llm_expand_iter1/2</code></li>
+      <li>Финальная дедупликация через сортировку множества</li>
+    </ul>
+
+    <div class="subsection-title">LLM обработка</div>
+    <p class="body">Метод <code>LLMService.expand_keywords</code>. Промпт запрашивает генерацию long-tail фраз на основе seed-ключей и бизнес-контекста. Используются 8 типов модификаторов:</p>
+    <ul class="body" style="margin-left: 1.2rem; list-style: disc;">
+      <li>Коммерческие: купить, цена, стоимость, заказать</li>
+      <li>Гео-модификаторы: город, район, метро</li>
+      <li>Характеристики: цвет, размер, материал, бренд</li>
+      <li>Назначение: для чего, кому, в каких условиях</li>
+      <li>Аудитория: для новичков, профессионалов, детей</li>
+      <li>Проблемы: сломалось, не работает, нужно исправить</li>
+      <li>Сравнения: лучше, дешевле, аналоги, отличия</li>
+      <li>Размеры/материалы: конкретные параметры</li>
+    </ul>
+    <p class="body">Temperature: <strong>0.7</strong>. Формат ответа: JSON-массив строк. Исходные seed-ключи исключаются из результата.</p>
+
+    <div class="subsection-title">Алгоритм итераций</div>
+    <div class="code-block">
+Итерация 1 (depth=2 для Suggest):
+  - Google Suggest для всех seed-ключей (depth=2: seed -> top-5 подсказок -> их подсказки)
+  - Google Trends related queries для seed-ключей
+  - LLM expand_keywords для seed-ключей
+
+Итерация 2 (только если найдены новые ключи):
+  - Берём top-10 новых ключей из итерации 1
+  - Google Suggest для top-10 (depth=1)
+  - LLM expand_keywords для top-10
+    </div>
+
+    <div class="subsection-title">Выходные данные</div>
+    <div class="code-block">
+{
+  "candidates": ["фраза 1", "фраза 2", ...],
+  "sources": {
+    "фраза 1": ["google_suggest_iter1"],
+    "фраза 2": ["llm_expand_iter1", "google_suggest_iter2"]
+  }
+}
+    </div>
+  </div>
+
+  <!-- Agent 3: Cleaning -->
+  <div class="agent-card">
+    <div class="agent-header">
+      <div class="step-number">3</div>
+      <div>
+        <div class="card-title">CleaningAgent — Очистка ключевых слов</div>
+        <div class="caption">Удаляет дубли, мусор и нерелевантные запросы через программную фильтрацию и LLM</div>
+      </div>
+    </div>
+
+    <span class="badge badge-local">Локальная обработка</span>
+    <span class="badge badge-llm">LLM</span>
+
+    <div class="subsection-title">Входные данные</div>
+    <ul class="body" style="margin-left: 1.2rem; list-style: disc;">
+      <li><code>candidates</code> — полный список кандидатов от ExpansionAgent</li>
+      <li><code>business_context</code> — контекст для проверки релевантности</li>
+    </ul>
+
+    <div class="subsection-title">Локальная обработка</div>
+    <ul class="body" style="margin-left: 1.2rem; list-style: disc;">
+      <li><strong>Дедупликация</strong> (<code>_deduplicate</code>): lowercase + strip, сохранение порядка через <code>set</code></li>
+      <li><strong>Фильтрация по длине</strong>: удаляются запросы короче 3 символов</li>
+    </ul>
+
+    <div class="subsection-title">LLM обработка</div>
+    <p class="body">Метод <code>LLMService.clean_keywords</code>. Обработка батчами по <strong>50 ключей</strong>. Temperature: <strong>0.2</strong>.</p>
+    <p class="body" style="margin-top: var(--space-2);">Критерии удаления (<code>keep = false</code>):</p>
+    <ul class="body" style="margin-left: 1.2rem; list-style: disc;">
+      <li>Семантические дубли — идентичные или почти идентичные фразы</li>
+      <li>Мусор — бессмысленные сочетания слов без поискового интента</li>
+      <li>Нерелевантные — не связаны с бизнесом, продуктом или услугой</li>
+      <li>Юридически рискованные — контрафакт, запрещённые товары, медицинские утверждения без лицензии, гарантии результата</li>
+      <li>Слишком общие — одно слово без контекста</li>
+      <li>Нецелевые — относятся к совершенно другой нише</li>
+    </ul>
+    <p class="body">Формат ответа: JSON-массив <code>[{"keyword": "...", "keep": true/false, "reason": "..."}]</code>. При ошибке LLM возвращаются все ключи без фильтрации (graceful degradation).</p>
+
+    <div class="subsection-title">Выходные данные</div>
+    <div class="code-block">
+{
+  "cleaned_keywords": ["фраза 1", "фраза 2", ...],
+  "removed": [
+    {"keyword": "мусор", "reason": "Удалено по решению LLM"},
+    {"keyword": "x", "reason": "Слишком короткий запрос (< 3 символов)"}
+  ],
+  "stats": {
+    "total": 500,
+    "kept": 420,
+    "removed": 80,
+    "deduped": 10,
+    "too_short": 5,
+    "llm_rejected": 65
+  }
+}
+    </div>
+  </div>
+
+  <!-- Agent 4: Intent -->
+  <div class="agent-card">
+    <div class="agent-header">
+      <div class="step-number">4</div>
+      <div>
+        <div class="card-title">IntentAgent — Определение поискового интента</div>
+        <div class="caption">Классифицирует каждый запрос по 7 типам интента с confidence score</div>
+      </div>
+    </div>
+
+    <span class="badge badge-llm">LLM</span>
+
+    <div class="subsection-title">Входные данные</div>
+    <ul class="body" style="margin-left: 1.2rem; list-style: disc;">
+      <li><code>cleaned_keywords</code> — очищенный список</li>
+      <li><code>business_context</code> — контекст бизнеса</li>
+    </ul>
+
+    <div class="subsection-title">LLM обработка</div>
+    <p class="body">Метод <code>LLMService.classify_intent</code>. Батчинг по <strong>30 ключей</strong>. Temperature: <strong>0.3</strong>.</p>
+    <p class="body" style="margin-top: var(--space-2);">7 типов интента:</p>
+    <ul class="body" style="margin-left: 1.2rem; list-style: disc;">
+      <li><strong>commercial</strong> — пользователь готов к покупке, ищет товар/услугу (купить, цена, заказать)</li>
+      <li><strong>transactional</strong> — сильная покупательская мотивация, готов совершить сделку прямо сейчас</li>
+      <li><strong>informational</strong> — ищет информацию, ответ, инструкцию (как, что такое, зачем)</li>
+      <li><strong>local</strong> — гео-зависимый запрос, связанный с конкретным городом/районом</li>
+      <li><strong>comparison</strong> — сравнивает варианты, ищет лучший выбор (vs, лучше, отличия)</li>
+      <li><strong>navigational</strong> — ищет конкретный сайт или бренд</li>
+      <li><strong>problem_based</strong> — описывает проблему/боль, ищет решение (сломалось, болит, не работает)</li>
+    </ul>
+    <p class="body" style="margin-top: var(--space-2);">Также определяется рекомендуемый тип страницы: <code>category</code>, <code>product</code>, <code>article</code>, <code>landing</code>, <code>comparison</code>, <code>faq</code>, <code>home</code>.</p>
+    <p class="body">Формат ответа: <code>[{"keyword": "...", "intent": "...", "confidence": 0.95, "page_type": "..."}]</code>. Confidence — число от 0 до 1. При ошибке LLM все ключи получают <code>intent: "unknown"</code> и <code>confidence: 0.0</code>.</p>
+
+    <div class="subsection-title">Выходные данные</div>
+    <div class="code-block">
+{
+  "keywords_with_intents": [
+    {"keyword": "купить ноутбук", "intent": "commercial", "confidence": 0.92, "page_type": "category"},
+    {"keyword": "как выбрать ноутбук", "intent": "informational", "confidence": 0.88, "page_type": "article"}
+  ]
+}
+    </div>
+  </div>
+
+  <!-- Agent 5: Clustering -->
+  <div class="agent-card">
+    <div class="agent-header">
+      <div class="step-number">5</div>
+      <div>
+        <div class="card-title">ClusteringAgent — Кластеризация по интенту</div>
+        <div class="caption">Группирует ключевые слова так, чтобы каждый кластер отвечал одному интенту = одной странице</div>
+      </div>
+    </div>
+
+    <span class="badge badge-llm">LLM</span>
+    <span class="badge badge-fallback">Fallback</span>
+
+    <div class="subsection-title">Входные данные</div>
+    <ul class="body" style="margin-left: 1.2rem; list-style: disc;">
+      <li><code>keywords_with_intents</code> — список словарей с ключами, интентами и confidence</li>
+    </ul>
+
+    <div class="subsection-title">LLM обработка</div>
+    <p class="body">Метод <code>LLMService.cluster_keywords</code>. Все ключи передаются одним запросом. Temperature: <strong>0.3</strong>.</p>
+    <p class="body" style="margin-top: var(--space-2);">Правила кластеризации в промпте:</p>
+    <ul class="body" style="margin-left: 1.2rem; list-style: disc;">
+      <li>Один кластер = один поисковый интент = одна страница сайта</li>
+      <li>Семантически похожие фразы с разным интентом — в разные кластеры (пример: "купить ноутбук" commercial vs "как выбрать ноутбук" informational)</li>
+      <li>Не создавать слишком мелких кластеров (менее 2 фраз) при явном совпадении интента</li>
+      <li>Не объединять фразы с принципиально разным интентом</li>
+    </ul>
+    <p class="body">Формат ответа: <code>[{"cluster_name": "...", "main_keyword": "...", "keywords": [...], "intent": "...", "recommended_page_type": "..."}]</code>.</p>
+
+    <div class="subsection-title">Fallback (локальная обработка)</div>
+    <p class="body">Если LLM недоступен — простая группировка по полю <code>intent</code> через <code>collections.defaultdict</code>. Для каждого интента создаётся кластер с названием "Кластер {intent}".</p>
+
+    <div class="subsection-title">Выходные данные</div>
+    <div class="code-block">
+{
+  "clusters": [
+    {
+      "cluster_name": "Покупка ноутбуков",
+      "main_keyword": "купить ноутбук",
+      "keywords": ["купить ноутбук", "ноутбук цена", "заказать ноутбук"],
+      "intent": "commercial",
+      "recommended_page_type": "category"
+    }
+  ]
+}
+    </div>
+  </div>
+
+  <!-- Agent 6: Mapping -->
+  <div class="agent-card">
+    <div class="agent-header">
+      <div class="step-number">6</div>
+      <div>
+        <div class="card-title">MappingAgent — Маппинг на страницы сайта</div>
+        <div class="caption">Сопоставляет кластеры с существующими или новыми страницами, определяет действие</div>
+      </div>
+    </div>
+
+    <span class="badge badge-llm">LLM</span>
+    <span class="badge badge-fallback">Fallback</span>
+    <span class="badge badge-local">Локальная обработка</span>
+
+    <div class="subsection-title">Входные данные</div>
+    <ul class="body" style="margin-left: 1.2rem; list-style: disc;">
+      <li><code>clusters</code> — список кластеров</li>
+      <li><code>existing_pages</code> — URL из sitemap клиента</li>
+      <li><code>business_context</code> — контекст бизнеса</li>
+    </ul>
+
+    <div class="subsection-title">LLM обработка</div>
+    <p class="body">Метод <code>LLMService.map_to_pages</code>. Temperature: <strong>0.3</strong>. В промпт передаются кластеры и список существующих страниц.</p>
+    <p class="body" style="margin-top: var(--space-2);">Возможные действия:</p>
+    <ul class="body" style="margin-left: 1.2rem; list-style: disc;">
+      <li><strong>create</strong> — создать новую страницу (нет подходящей существующей)</li>
+      <li><strong>update</strong> — обновить существующую страницу, добавив/расширив контент</li>
+      <li><strong>merge</strong> — объединить с похожей страницей, избежать каннибализации</li>
+      <li><strong>faq</strong> — добавить вопрос в раздел FAQ (слишком узкий/специфичный интент)</li>
+      <li><strong>skip</strong> — пропустить (нерелевантно, низкий приоритет, дубль)</li>
+    </ul>
+    <p class="body">Правила в промпте: при наличии близкой по смыслу страницы — update/merge; при уникальном интенте — create; конкретный вопрос — faq; дубль — skip. URL должен быть SEO-оптимизированным (латиница, дефисы, без спецсимволов).</p>
+    <p class="body">Формат ответа: <code>[{"cluster_name": "...", "recommended_page": "/path", "action": "create", "reason": "..."}]</code>.</p>
+
+    <div class="subsection-title">Fallback (локальная обработка)</div>
+    <p class="body">Если LLM недоступен:</p>
+    <ul class="body" style="margin-left: 1.2rem; list-style: disc;">
+      <li>Генерация URL через <code>_keyword_to_url</code> — упрощённая транслитерация русских букв в латиницу с заменой спецсимволов на дефисы</li>
+      <li>Простое сопоставление: если в существующих страницах найдено совпадение по первым 2 словам main_keyword — действие <code>update</code>, иначе — <code>create</code></li>
+    </ul>
+
+    <div class="subsection-title">Выходные данные</div>
+    <div class="code-block">
+{
+  "mappings": [
+    {
+      "cluster_name": "Покупка ноутбуков",
+      "main_keyword": "купить ноутбук",
+      "keywords": ["купить ноутбук", "ноутбук цена"],
+      "intent": "commercial",
+      "recommended_page": "/kupit-noutbuk",
+      "action": "create",
+      "reason": "Новый коммерческий интент, не покрыт существующими страницами"
+    }
+  ]
+}
+    </div>
+  </div>
+
+  <!-- Agent 7: Prioritization -->
+  <div class="agent-card">
+    <div class="agent-header">
+      <div class="step-number">7</div>
+      <div>
+        <div class="card-title">PrioritizationAgent — Приоритизация кластеров</div>
+        <div class="caption">Оценивает кластеры по 7 факторам, рассчитывает взвешенный priority score и определяет уровень приоритета</div>
+      </div>
+    </div>
+
+    <span class="badge badge-llm">LLM</span>
+    <span class="badge badge-local">Локальная формула</span>
+    <span class="badge badge-fallback">Fallback</span>
+
+    <div class="subsection-title">Входные данные</div>
+    <ul class="body" style="margin-left: 1.2rem; list-style: disc;">
+      <li><code>mappings</code> — список маппингов от MappingAgent</li>
+      <li><code>business_context</code> — контекст бизнеса</li>
+    </ul>
+
+    <div class="subsection-title">LLM обработка</div>
+    <p class="body">Метод <code>LLMService.score_priorities</code>. Temperature: <strong>0.2</strong>. Все кластеры передаются одним запросом. LLM оценивает каждый кластер по шкале 0-100 по 7 факторам:</p>
+    <ul class="body" style="margin-left: 1.2rem; list-style: disc;">
+      <li><strong>business_value</strong> — важность для бизнеса (доход, конверсия, LTV)</li>
+      <li><strong>ranking_opportunity</strong> — реалистичность выхода в топ</li>
+      <li><strong>intent_match</strong> — совпадение интента с предложением бизнеса</li>
+      <li><strong>trend_growth</strong> — рост спроса (50 = стабильно)</li>
+      <li><strong>content_gap</strong> — недостаток качественного контента у конкурентов</li>
+      <li><strong>keyword_difficulty</strong> — сложность продвижения (0 = легко, 100 = очень сложно)</li>
+      <li><strong>cannibalization_risk</strong> — риск каннибализации (0 = нет риска)</li>
+    </ul>
+    <p class="body">Формат ответа: <code>[{"cluster_name": "...", "scores": {...}, "priority_score": 72.5, "priority_level": "high"}]</code>.</p>
+
+    <div class="subsection-title">Локальная формула</div>
+    <p class="body">Priority Score пересчитывается на сервере для надёжности:</p>
+    <div class="code-block">
+priority_score = (
+    business_value          * 0.25 +
+    ranking_opportunity     * 0.20 +
+    intent_match            * 0.20 +
+    trend_growth            * 0.10 +
+    content_gap             * 0.10 +
+    (100 - keyword_difficulty) * 0.10 +
+    (100 - cannibalization_risk) * 0.05
+)
+    </div>
+    <p class="body" style="margin-top: var(--space-2);">Уровни приоритета:</p>
+    <ul class="body" style="margin-left: 1.2rem; list-style: disc;">
+      <li><strong>critical</strong> — priority_score &ge; 80</li>
+      <li><strong>high</strong> — priority_score &ge; 60</li>
+      <li><strong>medium</strong> — priority_score &ge; 40</li>
+      <li><strong>low</strong> — priority_score &lt; 40</li>
+    </ul>
+
+    <div class="subsection-title">Fallback (локальная обработка)</div>
+    <p class="body">Если LLM недоступен:</p>
+    <ul class="body" style="margin-left: 1.2rem; list-style: disc;">
+      <li>Базовая оценка = min(размер кластера * 5, 50)</li>
+      <li>Бонус за действие: create +20, update +15, merge +10, faq +5</li>
+      <li>Ограничение 0-100, определение уровня по тем же порогам</li>
+      <li>Все оценки по факторам заполняются значением 50, cannibalization_risk = 0</li>
+    </ul>
+
+    <div class="subsection-title">Выходные данные</div>
+    <div class="code-block">
+{
+  "results": [
+    {
+      "cluster_name": "Покупка ноутбуков",
+      "main_keyword": "купить ноутбук",
+      "keywords": ["купить ноутбук", "ноутбук цена"],
+      "intent": "commercial",
+      "recommended_page": "/kupit-noutbuk",
+      "action": "create",
+      "priority_score": 78.5,
+      "priority_level": "high",
+      "reason": "...",
+      "scores": {
+        "business_value": 85,
+        "ranking_opportunity": 70,
+        "intent_match": 90,
+        "trend_growth": 60,
+        "content_gap": 75,
+        "keyword_difficulty": 45,
+        "cannibalization_risk": 10
+      }
+    }
+  ]
+}
+    </div>
+  </div>
+
+  <!-- Agent 8: Feedback -->
+  <div class="agent-card">
+    <div class="agent-header">
+      <div class="step-number">8</div>
+      <div>
+        <div class="card-title">FeedbackAgent — Обратная связь (заглушка)</div>
+        <div class="caption">Передаёт результаты дальше без изменений. В будущей версии — интеграция с Google Search Console</div>
+      </div>
+    </div>
+
+    <span class="badge badge-local">Локальная обработка</span>
+
+    <div class="subsection-title">Входные данные</div>
+    <ul class="body" style="margin-left: 1.2rem; list-style: disc;">
+      <li><code>results</code> — финальные результаты приоритизации</li>
+    </ul>
+
+    <div class="subsection-title">Обработка</div>
+    <p class="body">Агент не изменяет данные. Добавляет метаинформацию:</p>
+    <ul class="body" style="margin-left: 1.2rem; list-style: disc;">
+      <li><code>feedback_status: "not_available"</code></li>
+      <li><code>message: "Мониторинг после публикации будет доступен в следующей версии"</code></li>
+    </ul>
+
+    <div class="subsection-title">Будущая функциональность</div>
+    <p class="body">Планируется интеграция с Google Search Console для анализа позиций, CTR, сравнения план/факт.</p>
+
+    <div class="subsection-title">Выходные данные</div>
+    <div class="code-block">
+{
+  "results": [...],
+  "feedback_status": "not_available",
+  "message": "Мониторинг после публикации будет доступен в следующей версии"
+}
+    </div>
+  </div>
+
+  <!-- Оркестратор -->
+  <div class="agent-card">
+    <div class="agent-header">
+      <div class="step-number" style="background: var(--gray-700);">O</div>
+      <div>
+        <div class="card-title">PipelineOrchestrator — Оркестратор</div>
+        <div class="caption">Управляет последовательным запуском агентов, SSE-прогрессом и сохранением результатов</div>
+      </div>
+    </div>
+
+    <div class="subsection-title">Цепочка выполнения</div>
+    <div class="code-block">
+agents = [
+  ("ResearchAgent",         ResearchAgent()),
+  ("ExpansionAgent",        ExpansionAgent()),
+  ("CleaningAgent",         CleaningAgent()),
+  ("IntentAgent",           IntentAgent()),
+  ("ClusteringAgent",       ClusteringAgent()),
+  ("MappingAgent",          MappingAgent()),
+  ("PrioritizationAgent",   PrioritizationAgent()),
+  ("FeedbackAgent",         FeedbackAgent()),
+]
+    </div>
+    <p class="body">Данные передаются через слияние словарей: <code>current_data = {**current_data, **result}</code>. Каждый следующий агент видит все предыдущие результаты.</p>
+
+    <div class="subsection-title">SSE (Server-Sent Events)</div>
+    <p class="body">Прогресс передаётся клиенту в реальном времени через <code>asyncio.Queue</code>:</p>
+    <ul class="body" style="margin-left: 1.2rem; list-style: disc;">
+      <li><code>agent_start</code> — агент начал работу (с номером шага и общим количеством)</li>
+      <li><code>agent_complete</code> — агент завершился успешно</li>
+      <li><code>error</code> — ошибка в агенте (pipeline прерывается)</li>
+      <li><code>pipeline_complete</code> — все агенты завершены, передаётся <code>total_keywords</code></li>
+    </ul>
+
+    <div class="subsection-title">Сохранение в БД</div>
+    <p class="body">По завершении пайплайна результаты сохраняются в таблицу <code>KeywordResult</code>:</p>
+    <ul class="body" style="margin-left: 1.2rem; list-style: disc;">
+      <li>Каждый ключевой запрос — отдельная строка</li>
+      <li>Поля: <code>run_id</code>, <code>keyword</code>, <code>cluster_name</code>, <code>intent</code>, <code>confidence</code> (из IntentAgent), <code>recommended_page</code>, <code>action</code>, <code>priority_score</code>, <code>priority_level</code>, <code>reason</code></li>
+      <li>Confidence для каждого keyword извлекается из <code>keywords_with_intents</code> по точному совпадению (lowercase)</li>
+    </ul>
+
+    <div class="subsection-title">Управление статусом</div>
+    <p class="body">Таблица <code>PipelineRun</code> обновляется на каждом шаге:</p>
+    <ul class="body" style="margin-left: 1.2rem; list-style: disc;">
+      <li><code>status</code>: pending -> running -> completed/failed</li>
+      <li><code>current_agent</code> — имя текущего агента</li>
+      <li><code>progress</code> — процент выполнения (0-100)</li>
+      <li><code>started_at</code>, <code>completed_at</code> — временные метки</li>
+      <li><code>error_message</code> — текст ошибки при статусе failed</li>
+    </ul>
+  </div>
+
+  <!-- Технический стек -->
+  <div class="agent-card">
+    <div class="agent-header">
+      <div class="step-number" style="background: var(--gray-700);">T</div>
+      <div>
+        <div class="card-title">Технический стек</div>
+        <div class="caption">Используемые технологии, библиотеки и инфраструктура</div>
+      </div>
+    </div>
+
+    <div class="metric-grid">
+      <div class="metric-box">
+        <div class="metric-label">Backend</div>
+        <div class="metric-value">Python 3.11+, FastAPI</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">LLM API</div>
+        <div class="metric-value">OpenRouter (OpenAI SDK)</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">База данных</div>
+        <div class="metric-value">SQLite + SQLAlchemy async</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">Шаблоны</div>
+        <div class="metric-value">Jinja2</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">Стили</div>
+        <div class="metric-value">Tailwind CSS CDN</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">Контейнеризация</div>
+        <div class="metric-value">Docker + docker-compose</div>
+      </div>
+    </div>
+
+    <div class="subsection-title">Ключевые зависимости</div>
+    <div class="code-block">
+fastapi          — веб-фреймворк
+sqlalchemy[asyncio] + aiosqlite — асинхронная ORM и БД
+openai           — клиент OpenRouter (совместимый API)
+httpx            — асинхронные HTTP-запросы
+beautifulsoup4   — парсинг HTML
+lxml             — парсинг XML sitemap
+pytrends         — Google Trends API
+python-dotenv    — переменные окружения
+    </div>
+
+    <div class="subsection-title">Структура проекта</div>
+    <div class="code-block">
+seo-agents/
+├── app/
+│   ├── agents/         # 8 агентов + orchestrator.py + base.py
+│   ├── services/       # LLM, GoogleSuggest, Trends, Competitor
+│   ├── templates/      # Jinja2-шаблоны (base.html, docs.html и др.)
+│   ├── static/         # CSS, шрифты, JS, логотипы
+│   ├── main.py         # FastAPI роуты и lifespan
+│   ├── config.py       # Настройки (OpenRouter, БД)
+│   ├── database.py     # Инициализация БД и сессии
+│   ├── models.py       # SQLAlchemy модели
+│   └── schemas.py      # Pydantic схемы
+├── docker-compose.yml
+├── Dockerfile
+└── requirements.txt
+    </div>
+
+    <div class="subsection-title">Модели OpenRouter</div>
+    <p class="body">По умолчанию используется <strong>Qwen 3.6 Plus</strong> (<code>qwen/qwen3.6-plus</code>). В настройках можно переключить на:</p>
+    <ul class="body" style="margin-left: 1.2rem; list-style: disc;">
+      <li><strong>Kimi K2.6</strong> — <code>kimi/k2.6</code></li>
+      <li><strong>GLM 5.1</strong> — <code>glm/glm-5.1</code></li>
+      <li>Любую другую модель из каталога OpenRouter</li>
+    </ul>
+    <p class="body">Настройка модели: переменная окружения <code>OPENROUTER_MODEL</code> или поле на странице <code>/settings</code>.</p>
+  </div>
+
+</div>
+{% endblock %}
